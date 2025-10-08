@@ -87,31 +87,26 @@ const ChatRoom = () => {
       }
     };
   }, [conversationId, user]);
-  const handleSendMessage = async (e: React.FormEvent) => {
-  e.preventDefault();
 
-  // --- ULTIMATE DEBUGGING ---
-  console.log("--- SEND MESSAGE INITIATED ---");
-  console.log("User email:", user?.email);
-  console.log("Value of conversationId from useParams():", conversationId);
-  console.log("Type of conversationId:", typeof conversationId);
-  // --------------------------
-
-  if (!newMessage.trim() || !user || !conversationId) {
-    console.warn("Guard clause triggered. Aborting send.");
-    return;
-  }
-  
-  // ... rest of your function
-};
+  // --- THIS IS THE SINGLE, CORRECTED FUNCTION ---
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !user || !conversationId) return;
+
+    // Debugging logs to confirm our data is correct
+    console.log("--- SEND MESSAGE INITIATED ---");
+    console.log("User email:", user?.email);
+    console.log("Value of conversationId from useParams():", conversationId);
+
+    if (!newMessage.trim() || !user || !conversationId) {
+        console.warn("Guard clause triggered. Aborting send.");
+        return;
+    }
 
     try {
       setSending(true);
       const messageText = newMessage.trim();
 
+      // Step 1: Insert the user's message
       const { error: insertError } = await supabase
         .from('messages')
         .insert({
@@ -125,14 +120,16 @@ const ChatRoom = () => {
 
       setNewMessage("");
 
+      // Step 2: Invoke the AI mediator with the CORRECT property name
       const { error: functionError } = await supabase.functions.invoke('mediate-message', {
         body: {
-  conversation_id: conversationId, // Use snake_case for the property name
-  userMessage: messageText
-}
+          conversation_id: conversationId, // snake_case property name
+          userMessage: messageText
+        }
       });
 
       if (functionError) {
+        // This is a "soft" error, we don't need to throw it, just log it.
         console.error('AI mediation error:', functionError);
       }
     } catch (error: any) {
@@ -147,11 +144,7 @@ const ChatRoom = () => {
     <div className="h-screen flex flex-col bg-background">
       <div className="border-b border-border bg-card px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <Button
-            onClick={() => navigate("/dashboard")}
-            variant="ghost"
-            size="sm"
-          >
+          <Button onClick={() => navigate("/dashboard")} variant="ghost" size="sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
@@ -165,7 +158,7 @@ const ChatRoom = () => {
         <div className="max-w-4xl mx-auto space-y-4">
           {messages.map((message) => (
             <div
-              key={message.id}
+              key={message..id}
               className={`flex ${
                 message.is_ai_mediator
                   ? 'justify-center'
@@ -177,10 +170,10 @@ const ChatRoom = () => {
               <div
                 className={`max-w-[70%] rounded-2xl px-4 py-3 ${
                   message.is_ai_mediator
-                    ? 'bg-ai-mediator text-ai-mediator-foreground'
+                    ? 'bg-yellow-500 text-yellow-900' // Example AI color
                     : message.sender_id === user?.id
-                    ? 'bg-user-message text-primary-foreground'
-                    : 'bg-other-message text-foreground'
+                    ? 'bg-blue-600 text-white'     // Example User color
+                    : 'bg-gray-700 text-gray-200'    // Example Other user color
                 }`}
               >
                 {message.is_ai_mediator && (
@@ -197,10 +190,7 @@ const ChatRoom = () => {
       </div>
 
       <div className="border-t border-border bg-card px-4 py-4">
-        <form
-          onSubmit={handleSendMessage}
-          className="max-w-4xl mx-auto flex gap-2"
-        >
+        <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex gap-2">
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
