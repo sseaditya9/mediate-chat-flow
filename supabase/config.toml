@@ -1,1 +1,4 @@
 project_id = "bpurxogontbuaxmcsjls"
+
+[functions.mediate-message]
+verify_jwt = true
