@@ -111,9 +111,9 @@ const ChatRoom = () => {
 
       const { error: functionError } = await supabase.functions.invoke('mediate-message', {
         body: {
-          conversationId,
-          userMessage: messageText
-        }
+  conversation_id: conversationId, // Use snake_case for the property name
+  userMessage: messageText
+}
       });
 
       if (functionError) {
