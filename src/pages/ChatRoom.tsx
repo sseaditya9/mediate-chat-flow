@@ -87,7 +87,23 @@ const ChatRoom = () => {
       }
     };
   }, [conversationId, user]);
+  const handleSendMessage = async (e: React.FormEvent) => {
+  e.preventDefault();
 
+  // --- ULTIMATE DEBUGGING ---
+  console.log("--- SEND MESSAGE INITIATED ---");
+  console.log("User email:", user?.email);
+  console.log("Value of conversationId from useParams():", conversationId);
+  console.log("Type of conversationId:", typeof conversationId);
+  // --------------------------
+
+  if (!newMessage.trim() || !user || !conversationId) {
+    console.warn("Guard clause triggered. Aborting send.");
+    return;
+  }
+  
+  // ... rest of your function
+};
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !user || !conversationId) return;
