@@ -40,7 +40,7 @@ const Dashboard = () => {
   };
 
   const generateInviteCode = () => {
-    return Math.random().toString(36).substring(2, 10).toUpperCase();
+    return Math.random().toString(36).substring(2, 7).toUpperCase();
   };
 
   const handleCreateConversation = async () => {

@@ -22,6 +22,7 @@ const ChatRoom = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [inviteCode, setInviteCode] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
 
@@ -61,7 +62,22 @@ const ChatRoom = () => {
       }
     };
 
+    const fetchConversation = async () => {
+      const { data, error } = await supabase
+        .from('conversations')
+        .select('invite_code')
+        .eq('id', conversationId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching conversation:', error);
+      } else {
+        setInviteCode(data?.invite_code || '');
+      }
+    };
+
     fetchMessages();
+    fetchConversation();
 
     const channel = supabase
       .channel(`conversation:${conversationId}`)
@@ -123,7 +139,7 @@ const ChatRoom = () => {
       // Step 2: Invoke the AI mediator with the CORRECT property name
       const { error: functionError } = await supabase.functions.invoke('mediate-message', {
         body: {
-          conversation_id: conversationId, // snake_case property name
+          conversationId: conversationId, // camelCase to match edge function
           userMessage: messageText
         }
       });
@@ -143,14 +159,24 @@ const ChatRoom = () => {
   return (
     <div className="h-screen flex flex-col bg-background">
       <div className="border-b border-border bg-card px-4 py-3">
-        <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <Button onClick={() => navigate("/dashboard")} variant="ghost" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-lg font-semibold text-foreground">
-            Conversation
-          </h1>
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Button onClick={() => navigate("/dashboard")} variant="ghost" size="sm">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <h1 className="text-lg font-semibold text-foreground">
+              Conversation
+            </h1>
+          </div>
+          {inviteCode && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Code:</span>
+              <span className="text-sm font-mono font-semibold text-foreground bg-muted px-3 py-1 rounded">
+                {inviteCode}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -158,7 +184,7 @@ const ChatRoom = () => {
         <div className="max-w-4xl mx-auto space-y-4">
           {messages.map((message) => (
             <div
-              key={message..id}
+              key={message.id}
               className={`flex ${
                 message.is_ai_mediator
                   ? 'justify-center'
@@ -170,10 +196,10 @@ const ChatRoom = () => {
               <div
                 className={`max-w-[70%] rounded-2xl px-4 py-3 ${
                   message.is_ai_mediator
-                    ? 'bg-yellow-500 text-yellow-900' // Example AI color
+                    ? 'bg-ai-mediator text-ai-mediator-foreground'
                     : message.sender_id === user?.id
-                    ? 'bg-blue-600 text-white'     // Example User color
-                    : 'bg-gray-700 text-gray-200'    // Example Other user color
+                    ? 'bg-user-message text-primary-foreground'
+                    : 'bg-other-message text-foreground'
                 }`}
               >
                 {message.is_ai_mediator && (
