@@ -62,7 +62,7 @@ const Auth = () => {
               Panchayat
             </h1>
             <p className="mt-3 text-lg text-muted-foreground">
-              Where conversations matter
+              Let the wise decide
             </p>
           </div>
         </div>
@@ -79,7 +79,7 @@ const Auth = () => {
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          Join the conversation today
+          Join Panchayat today
         </p>
       </div>
     </div>
