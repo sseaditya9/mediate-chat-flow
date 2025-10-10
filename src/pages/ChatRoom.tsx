@@ -15,6 +15,13 @@ interface Message {
   created_at: string;
 }
 
+interface Participant {
+  user_id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  email: string;
+}
+
 const ChatRoom = () => {
   const { conversationId } = useParams();
   const navigate = useNavigate();
@@ -23,6 +30,8 @@ const ChatRoom = () => {
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [inviteCode, setInviteCode] = useState<string>("");
+  const [conversationTitle, setConversationTitle] = useState<string>("");
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
 
@@ -65,7 +74,7 @@ const ChatRoom = () => {
     const fetchConversation = async () => {
       const { data, error } = await supabase
         .from('conversations')
-        .select('invite_code')
+        .select('invite_code, title')
         .eq('id', conversationId)
         .single();
 
@@ -73,11 +82,24 @@ const ChatRoom = () => {
         console.error('Error fetching conversation:', error);
       } else {
         setInviteCode(data?.invite_code || '');
+        setConversationTitle(data?.title || 'Conversation');
+      }
+    };
+
+    const fetchParticipants = async () => {
+      const { data, error } = await supabase
+        .rpc('get_conversation_participants', { conversation_uuid: conversationId });
+
+      if (error) {
+        console.error('Error fetching participants:', error);
+      } else {
+        setParticipants(data || []);
       }
     };
 
     fetchMessages();
     fetchConversation();
+    fetchParticipants();
 
     const channel = supabase
       .channel(`conversation:${conversationId}`)
@@ -159,22 +181,49 @@ const ChatRoom = () => {
   return (
     <div className="h-screen flex flex-col bg-background">
       <div className="border-b border-border bg-card px-4 py-3">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Button onClick={() => navigate("/dashboard")} variant="ghost" size="sm">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            <h1 className="text-lg font-semibold text-foreground">
-              Conversation
-            </h1>
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+              <Button onClick={() => navigate("/dashboard")} variant="ghost" size="sm">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-lg font-semibold text-foreground truncate">
+                  {conversationTitle}
+                </h1>
+                <p className="text-xs text-muted-foreground">
+                  {participants.length} participant{participants.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+            </div>
+            {inviteCode && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Code:</span>
+                <span className="text-sm font-mono font-semibold text-foreground bg-muted px-3 py-1 rounded">
+                  {inviteCode}
+                </span>
+              </div>
+            )}
           </div>
-          {inviteCode && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Code:</span>
-              <span className="text-sm font-mono font-semibold text-foreground bg-muted px-3 py-1 rounded">
-                {inviteCode}
-              </span>
+          {participants.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-border">
+              <p className="text-xs text-muted-foreground mb-2">Participants:</p>
+              <div className="flex flex-wrap gap-2">
+                {participants.map((participant) => (
+                  <div
+                    key={participant.user_id}
+                    className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-full"
+                  >
+                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold text-primary">
+                      {(participant.full_name || participant.email || 'U').charAt(0).toUpperCase()}
+                    </div>
+                    <span className="text-sm text-foreground">
+                      {participant.full_name || participant.email}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

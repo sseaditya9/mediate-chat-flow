@@ -130,34 +130,18 @@ export type Database = {
       }
     }
     Views: {
-      conversation_participants_view: {
-        Row: {
-          avatar_url: string | null
-          conversation_id: string | null
-          email: string | null
-          full_name: string | null
-          user_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conversation_participants_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "conversation_participants_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_conversation_participants: {
+        Args: { conversation_uuid: string }
+        Returns: {
+          avatar_url: string
+          email: string
+          full_name: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
