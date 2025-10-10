@@ -30,8 +30,8 @@ export const ChatTab = ({
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="border-accent/20 hover:border-accent/40 transition-colors">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-primary">
-              <Plus className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <Plus className="w-5 h-5 text-foreground" />
               Create Panchayat
             </CardTitle>
             <CardDescription>Start a new conversation</CardDescription>
@@ -50,8 +50,8 @@ export const ChatTab = ({
 
         <Card className="border-accent/20 hover:border-accent/40 transition-colors">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-primary">
-              <UserPlus className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <UserPlus className="w-5 h-5 text-foreground" />
               Join Panchayat
             </CardTitle>
           </CardHeader>
