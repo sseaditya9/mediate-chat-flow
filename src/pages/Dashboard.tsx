@@ -138,7 +138,7 @@ const Dashboard = () => {
           <div>
             <h1 className="text-3xl font-bold text-primary font-serif">Panchayat</h1>
             <p className="text-muted-foreground mt-1">
-              Where conversations matter
+              Let the wise decide
             </p>
           </div>
           <Button onClick={handleSignOut} variant="outline" size="sm" className="border-accent/30">
