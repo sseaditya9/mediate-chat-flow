@@ -54,7 +54,6 @@ export const ChatTab = ({
               <UserPlus className="w-5 h-5" />
               Join Panchayat
             </CardTitle>
-            <CardDescription>Enter an invite code</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Input
