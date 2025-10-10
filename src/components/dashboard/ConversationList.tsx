@@ -150,7 +150,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
     <Card className="border-accent/20">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-primary">
-          <MessageSquare className="w-5 h-5" />
+          <MessageSquare className="w-5 h-5 text-foreground" />
           Your Panchayats
         </CardTitle>
         <CardDescription>
