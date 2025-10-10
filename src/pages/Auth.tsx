@@ -58,7 +58,7 @@ const Auth = () => {
             </div>
           </div>
           <div>
-            <h1 className="text-5xl font-bold tracking-tight text-primary font-serif">
+            <h1 className="text-5xl tracking-tight text-foreground font-serif">
               Panchayat
             </h1>
             <p className="mt-3 text-lg text-muted-foreground">
