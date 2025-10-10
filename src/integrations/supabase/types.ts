@@ -49,16 +49,19 @@ export type Database = {
           created_at: string | null
           id: string
           invite_code: string
+          title: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
           invite_code: string
+          title?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
           invite_code?: string
+          title?: string | null
         }
         Relationships: []
       }
@@ -127,7 +130,31 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      conversation_participants_view: {
+        Row: {
+          avatar_url: string | null
+          conversation_id: string | null
+          email: string | null
+          full_name: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
