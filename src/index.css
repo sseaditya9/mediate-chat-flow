@@ -8,41 +8,45 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 220 20% 8%;
-    --foreground: 0 0% 98%;
+    /* Panchayat Theme - Slate Black & Earthy Tones */
+    --background: 210 20% 8%;
+    --foreground: 30 15% 92%;
 
-    --card: 220 18% 12%;
-    --card-foreground: 0 0% 98%;
+    --card: 25 18% 15%;
+    --card-foreground: 30 15% 92%;
 
-    --popover: 220 18% 12%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 25 18% 15%;
+    --popover-foreground: 30 15% 92%;
 
-    --primary: 217 91% 65%;
-    --primary-foreground: 0 0% 100%;
+    /* Dark brown/beige primary */
+    --primary: 30 25% 35%;
+    --primary-foreground: 30 15% 95%;
 
-    --secondary: 220 18% 15%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 210 18% 12%;
+    --secondary-foreground: 30 15% 92%;
 
-    --muted: 220 15% 20%;
-    --muted-foreground: 220 10% 60%;
+    --muted: 25 12% 20%;
+    --muted-foreground: 30 10% 55%;
 
-    --accent: 217 91% 65%;
-    --accent-foreground: 0 0% 100%;
+    /* Warm earthy accent */
+    --accent: 35 40% 45%;
+    --accent-foreground: 30 15% 95%;
 
-    --ai-mediator: 160 84% 39%;
+    /* Green for AI mediator */
+    --ai-mediator: 140 35% 40%;
     --ai-mediator-foreground: 0 0% 100%;
 
-    --user-message: 217 91% 65%;
-    --other-message: 220 15% 22%;
+    --user-message: 30 25% 35%;
+    --other-message: 25 15% 22%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 15% 20%;
-    --input: 220 15% 20%;
-    --ring: 217 91% 65%;
+    --border: 25 15% 22%;
+    --input: 25 15% 18%;
+    --ring: 30 25% 35%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
   }
 }
 

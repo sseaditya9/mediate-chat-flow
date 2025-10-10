@@ -184,12 +184,12 @@ const ChatRoom = () => {
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4 flex-1 min-w-0">
-              <Button onClick={() => navigate("/dashboard")} variant="ghost" size="sm">
+              <Button onClick={() => navigate("/dashboard")} variant="ghost" size="sm" className="hover:bg-primary/10">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
               <div className="flex-1 min-w-0">
-                <h1 className="text-lg font-semibold text-foreground truncate">
+                <h1 className="text-lg font-bold text-primary font-serif truncate">
                   {conversationTitle}
                 </h1>
                 <p className="text-xs text-muted-foreground">
@@ -200,22 +200,22 @@ const ChatRoom = () => {
             {inviteCode && (
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">Code:</span>
-                <span className="text-sm font-mono font-semibold text-foreground bg-muted px-3 py-1 rounded">
+                <span className="text-sm font-mono font-semibold text-foreground bg-muted px-3 py-1 rounded border border-accent/20">
                   {inviteCode}
                 </span>
               </div>
             )}
           </div>
           {participants.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-border">
+            <div className="mt-3 pt-3 border-t border-border/50">
               <p className="text-xs text-muted-foreground mb-2">Participants:</p>
               <div className="flex flex-wrap gap-2">
                 {participants.map((participant) => (
                   <div
                     key={participant.user_id}
-                    className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-full"
+                    className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-full border border-accent/20"
                   >
-                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold text-primary">
+                    <div className="w-6 h-6 rounded-full bg-primary/30 flex items-center justify-center text-xs font-semibold text-primary-foreground">
                       {(participant.full_name || participant.email || 'U').charAt(0).toUpperCase()}
                     </div>
                     <span className="text-sm text-foreground">
@@ -271,9 +271,9 @@ const ChatRoom = () => {
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
             disabled={sending}
-            className="flex-1"
+            className="flex-1 bg-input border-border focus:border-primary"
           />
-          <Button type="submit" disabled={sending || !newMessage.trim()} size="icon">
+          <Button type="submit" disabled={sending || !newMessage.trim()} size="icon" className="bg-primary hover:bg-primary/90">
             <Send className="w-4 h-4" />
           </Button>
         </form>

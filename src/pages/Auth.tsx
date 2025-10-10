@@ -53,16 +53,16 @@ const Auth = () => {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-4">
           <div className="flex justify-center">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <MessageSquare className="w-8 h-8 text-primary" />
+            <div className="w-20 h-20 rounded-2xl bg-primary/20 flex items-center justify-center border-2 border-primary/30">
+              <MessageSquare className="w-10 h-10 text-primary" />
             </div>
           </div>
           <div>
-            <h1 className="text-4xl font-bold tracking-tight text-foreground">
-              Mediate
+            <h1 className="text-5xl font-bold tracking-tight text-primary font-serif">
+              Panchayat
             </h1>
             <p className="mt-3 text-lg text-muted-foreground">
-              AI-powered conversations that bring people together
+              Where conversations matter
             </p>
           </div>
         </div>
@@ -71,7 +71,7 @@ const Auth = () => {
           <Button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full h-12 text-base font-medium"
+            className="w-full h-12 text-base font-medium bg-primary hover:bg-primary/90"
             size="lg"
           >
             {loading ? 'Signing in...' : 'Sign in with Google'}
@@ -79,7 +79,7 @@ const Auth = () => {
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          Start meaningful conversations with AI mediation
+          Join the conversation today
         </p>
       </div>
     </div>
