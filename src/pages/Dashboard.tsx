@@ -136,7 +136,7 @@ const Dashboard = () => {
       <div className="max-w-6xl mx-auto space-y-6 py-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-primary font-serif">Panchayat</h1>
+            <h1 className="text-5xl  text-primary font-serif">Panchayat</h1>
             <p className="text-muted-foreground mt-1">
               Let the wise decide
             </p>
