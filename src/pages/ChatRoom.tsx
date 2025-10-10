@@ -189,7 +189,7 @@ const ChatRoom = () => {
                 Back
               </Button>
               <div className="flex-1 min-w-0">
-                <h1 className="text-lg font-bold text-primary font-serif truncate">
+                <h1 className="text-sm text-foreground font-serif truncate">
                   {conversationTitle}
                 </h1>
                 <p className="text-xs text-muted-foreground">
