@@ -149,7 +149,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
   return (
     <Card className="border-accent/20">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-primary">
+        <CardTitle className="flex items-center gap-2 text-foreground">
           <MessageSquare className="w-5 h-5 text-foreground" />
           Your Panchayats
         </CardTitle>
@@ -217,7 +217,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
                         <span>•</span>
                         <span>{conversation.message_count} message{conversation.message_count !== 1 ? 's' : ''}</span>
                         <span>•</span>
-                        <span className="font-mono">{conversation.invite_code}</span>
+                        <span className="font-mono text-foreground">{conversation.invite_code}</span>
                       </div>
                     </div>
                     <Button
