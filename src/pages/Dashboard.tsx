@@ -56,7 +56,7 @@ const Dashboard = () => {
         .from('conversations')
         .insert({
           invite_code: code,
-          title: 'New thefiveelders'
+          title: 'New TheFiveElders'
         })
         .select()
         .single();
@@ -72,14 +72,14 @@ const Dashboard = () => {
 
       if (participantError) throw participantError;
 
-      toast.success(`thefiveelders created! Invite code: ${code}`, {
+      toast.success(`TheFiveElders created! Invite code: ${code}`, {
         duration: 5000,
       });
 
       navigate(`/chat/${conversation.id}`);
     } catch (error: any) {
       console.error('Error creating conversation:', error);
-      toast.error(error.message || 'Failed to create thefiveelders');
+      toast.error(error.message || 'Failed to create TheFiveElders');
     } finally {
       setCreating(false);
     }
@@ -114,18 +114,18 @@ const Dashboard = () => {
 
       if (participantError) {
         if (participantError.code === '23505') {
-          toast.info('You are already in this thefiveelders');
+          toast.info('You are already in this TheFiveElders');
           navigate(`/chat/${conversation.id}`);
           return;
         }
         throw participantError;
       }
 
-      toast.success('Joined thefiveelders successfully!');
+      toast.success('Joined TheFiveElders successfully!');
       navigate(`/chat/${conversation.id}`);
     } catch (error: any) {
       console.error('Error joining conversation:', error);
-      toast.error(error.message || 'Failed to join thefiveelders');
+      toast.error(error.message || 'Failed to join TheFiveElders');
     } finally {
       setJoining(false);
     }
@@ -136,7 +136,7 @@ const Dashboard = () => {
       <div className="max-w-6xl mx-auto space-y-6 py-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl  text-foreground font-serif">thefiveelders</h1>
+            <h1 className="text-4xl  text-foreground font-serif">TheFiveElders</h1>
             <p className="text-muted-foreground mt-1">
               Let the wise decide
             </p>
@@ -150,7 +150,7 @@ const Dashboard = () => {
         <Tabs defaultValue="chat" className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 bg-card">
             <TabsTrigger value="chat" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              thefiveelderss
+              TheFiveElderss
             </TabsTrigger>
             <TabsTrigger value="account" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Account
