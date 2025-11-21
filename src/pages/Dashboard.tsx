@@ -47,16 +47,16 @@ const Dashboard = () => {
 
   const handleCreateConversation = async () => {
     if (!user) return;
-    
+
     try {
       setCreating(true);
       const code = generateInviteCode();
 
       const { data: conversation, error: convError } = await supabase
         .from('conversations')
-        .insert({ 
+        .insert({
           invite_code: code,
-          title: 'New Panchayat'
+          title: 'New 5elders'
         })
         .select()
         .single();
@@ -72,14 +72,14 @@ const Dashboard = () => {
 
       if (participantError) throw participantError;
 
-      toast.success(`Panchayat created! Invite code: ${code}`, {
+      toast.success(`5elders created! Invite code: ${code}`, {
         duration: 5000,
       });
 
       navigate(`/chat/${conversation.id}`);
     } catch (error: any) {
       console.error('Error creating conversation:', error);
-      toast.error(error.message || 'Failed to create panchayat');
+      toast.error(error.message || 'Failed to create 5elders');
     } finally {
       setCreating(false);
     }
@@ -114,18 +114,18 @@ const Dashboard = () => {
 
       if (participantError) {
         if (participantError.code === '23505') {
-          toast.info('You are already in this panchayat');
+          toast.info('You are already in this 5elders');
           navigate(`/chat/${conversation.id}`);
           return;
         }
         throw participantError;
       }
 
-      toast.success('Joined panchayat successfully!');
+      toast.success('Joined 5elders successfully!');
       navigate(`/chat/${conversation.id}`);
     } catch (error: any) {
       console.error('Error joining conversation:', error);
-      toast.error(error.message || 'Failed to join panchayat');
+      toast.error(error.message || 'Failed to join 5elders');
     } finally {
       setJoining(false);
     }
@@ -136,7 +136,7 @@ const Dashboard = () => {
       <div className="max-w-6xl mx-auto space-y-6 py-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl  text-foreground font-serif">Panchayat</h1>
+            <h1 className="text-4xl  text-foreground font-serif">5elders</h1>
             <p className="text-muted-foreground mt-1">
               Let the wise decide
             </p>
@@ -150,13 +150,13 @@ const Dashboard = () => {
         <Tabs defaultValue="chat" className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 bg-card">
             <TabsTrigger value="chat" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Panchayats
+              5elderss
             </TabsTrigger>
             <TabsTrigger value="account" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Account
             </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="chat" className="mt-6">
             <ChatTab
               user={user}
@@ -168,7 +168,7 @@ const Dashboard = () => {
               onJoinConversation={handleJoinConversation}
             />
           </TabsContent>
-          
+
           <TabsContent value="account" className="mt-6">
             <AccountTab user={user} />
           </TabsContent>

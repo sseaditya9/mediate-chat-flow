@@ -31,7 +31,7 @@ const Auth = () => {
     try {
       setLoading(true);
       const redirectUrl = `${window.location.origin}/dashboard`;
-      
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -59,7 +59,7 @@ const Auth = () => {
           </div>
           <div>
             <h1 className="text-5xl tracking-tight text-foreground font-serif">
-              Panchayat
+              5elders
             </h1>
             <p className="mt-3 text-lg text-muted-foreground">
               Let the wise decide
@@ -79,7 +79,7 @@ const Auth = () => {
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          Join Panchayat today
+          Join 5elders today
         </p>
       </div>
     </div>

@@ -32,18 +32,18 @@ export const ChatTab = ({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-foreground">
               <Plus className="w-5 h-5 text-foreground" />
-              Create Panchayat
+              Create 5elders
             </CardTitle>
             <CardDescription>Start a new conversation</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button 
-              onClick={onCreateConversation} 
+            <Button
+              onClick={onCreateConversation}
               disabled={creating}
               className="w-full bg-primary hover:bg-primary/90"
               size="lg"
             >
-              {creating ? 'Creating...' : 'Create New Panchayat'}
+              {creating ? 'Creating...' : 'Create New 5elders'}
             </Button>
           </CardContent>
         </Card>
@@ -52,7 +52,7 @@ export const ChatTab = ({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-foreground">
               <UserPlus className="w-5 h-5 text-foreground" />
-              Join Panchayat
+              Join 5elders
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -63,13 +63,13 @@ export const ChatTab = ({
               maxLength={8}
               className="bg-input border-border"
             />
-            <Button 
-              onClick={onJoinConversation} 
+            <Button
+              onClick={onJoinConversation}
               disabled={joining || !inviteCode.trim()}
               className="w-full bg-primary hover:bg-primary/90"
               size="lg"
             >
-              {joining ? 'Joining...' : 'Join Panchayat'}
+              {joining ? 'Joining...' : 'Join 5elders'}
             </Button>
           </CardContent>
         </Card>
