@@ -32,7 +32,7 @@ export const ChatTab = ({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-foreground">
               <Plus className="w-5 h-5 text-foreground" />
-              Create 5elders
+              Create eldersfive
             </CardTitle>
             <CardDescription>Start a new conversation</CardDescription>
           </CardHeader>
@@ -43,7 +43,7 @@ export const ChatTab = ({
               className="w-full bg-primary hover:bg-primary/90"
               size="lg"
             >
-              {creating ? 'Creating...' : 'Create New 5elders'}
+              {creating ? 'Creating...' : 'Create New eldersfive'}
             </Button>
           </CardContent>
         </Card>
@@ -52,7 +52,7 @@ export const ChatTab = ({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-foreground">
               <UserPlus className="w-5 h-5 text-foreground" />
-              Join 5elders
+              Join eldersfive
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -69,7 +69,7 @@ export const ChatTab = ({
               className="w-full bg-primary hover:bg-primary/90"
               size="lg"
             >
-              {joining ? 'Joining...' : 'Join 5elders'}
+              {joining ? 'Joining...' : 'Join eldersfive'}
             </Button>
           </CardContent>
         </Card>

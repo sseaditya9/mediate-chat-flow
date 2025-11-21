@@ -59,7 +59,7 @@ const Auth = () => {
           </div>
           <div>
             <h1 className="text-5xl tracking-tight text-foreground font-serif">
-              5elders
+              eldersfive
             </h1>
             <p className="mt-3 text-lg text-muted-foreground">
               Let the wise decide
@@ -79,7 +79,7 @@ const Auth = () => {
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          Join 5elders today
+          Join eldersfive today
         </p>
       </div>
     </div>

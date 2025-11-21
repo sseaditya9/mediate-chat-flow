@@ -84,7 +84,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
   };
 
   const handleDeleteConversation = async (conversationId: string) => {
-    if (!confirm('Are you sure you want to delete this 5elders?')) return;
+    if (!confirm('Are you sure you want to delete this eldersfive?')) return;
 
     try {
       const { error } = await supabase
@@ -95,10 +95,10 @@ export const ConversationList = ({ userId }: { userId: string }) => {
       if (error) throw error;
 
       setConversations(prev => prev.filter(c => c.id !== conversationId));
-      toast.success('5elders deleted');
+      toast.success('eldersfive deleted');
     } catch (error: any) {
       console.error('Error deleting conversation:', error);
-      toast.error(error.message || 'Failed to delete 5elders');
+      toast.error(error.message || 'Failed to delete eldersfive');
     }
   };
 
@@ -140,7 +140,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
     return (
       <Card className="border-accent/20">
         <CardContent className="py-8">
-          <div className="text-center text-muted-foreground">Loading 5elderss...</div>
+          <div className="text-center text-muted-foreground">Loading eldersfives...</div>
         </CardContent>
       </Card>
     );
@@ -151,16 +151,16 @@ export const ConversationList = ({ userId }: { userId: string }) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-foreground">
           <MessageSquare className="w-5 h-5 text-foreground" />
-          Your 5elderss
+          Your eldersfives
         </CardTitle>
         <CardDescription>
-          {conversations.length} active 5elders{conversations.length !== 1 ? 's' : ''}
+          {conversations.length} active eldersfive{conversations.length !== 1 ? 's' : ''}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {conversations.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            No 5elderss yet. Create or join one to get started!
+            No eldersfives yet. Create or join one to get started!
           </div>
         ) : (
           <>

@@ -56,7 +56,7 @@ const Dashboard = () => {
         .from('conversations')
         .insert({
           invite_code: code,
-          title: 'New 5elders'
+          title: 'New eldersfive'
         })
         .select()
         .single();
@@ -72,14 +72,14 @@ const Dashboard = () => {
 
       if (participantError) throw participantError;
 
-      toast.success(`5elders created! Invite code: ${code}`, {
+      toast.success(`eldersfive created! Invite code: ${code}`, {
         duration: 5000,
       });
 
       navigate(`/chat/${conversation.id}`);
     } catch (error: any) {
       console.error('Error creating conversation:', error);
-      toast.error(error.message || 'Failed to create 5elders');
+      toast.error(error.message || 'Failed to create eldersfive');
     } finally {
       setCreating(false);
     }
@@ -114,18 +114,18 @@ const Dashboard = () => {
 
       if (participantError) {
         if (participantError.code === '23505') {
-          toast.info('You are already in this 5elders');
+          toast.info('You are already in this eldersfive');
           navigate(`/chat/${conversation.id}`);
           return;
         }
         throw participantError;
       }
 
-      toast.success('Joined 5elders successfully!');
+      toast.success('Joined eldersfive successfully!');
       navigate(`/chat/${conversation.id}`);
     } catch (error: any) {
       console.error('Error joining conversation:', error);
-      toast.error(error.message || 'Failed to join 5elders');
+      toast.error(error.message || 'Failed to join eldersfive');
     } finally {
       setJoining(false);
     }
@@ -136,7 +136,7 @@ const Dashboard = () => {
       <div className="max-w-6xl mx-auto space-y-6 py-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl  text-foreground font-serif">5elders</h1>
+            <h1 className="text-4xl  text-foreground font-serif">eldersfive</h1>
             <p className="text-muted-foreground mt-1">
               Let the wise decide
             </p>
@@ -150,7 +150,7 @@ const Dashboard = () => {
         <Tabs defaultValue="chat" className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 bg-card">
             <TabsTrigger value="chat" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              5elderss
+              eldersfives
             </TabsTrigger>
             <TabsTrigger value="account" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Account

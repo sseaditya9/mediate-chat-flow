@@ -8,7 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* 5elders Theme - Slate Black & Earthy Tones */
+    /* eldersfive Theme - Slate Black & Earthy Tones */
     --background: 210 20% 8%;
     --foreground: 30 15% 92%;
 
