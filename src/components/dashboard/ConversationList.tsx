@@ -60,15 +60,25 @@ export const ConversationList = ({ userId }: { userId: string }) => {
               .eq('conversation_id', conv.id);
 
             // Get other participant's name
-            const { data: otherParticipants } = await supabase
-              .rpc('get_conversation_participants', { conversation_uuid: conv.id });
+            const { data: participantsData } = await supabase
+              .from('conversation_participants')
+              .select(`
+                user_id,
+                profiles:profiles(
+                  full_name,
+                  display_name
+                )
+              `)
+              .eq('conversation_id', conv.id);
 
-            const otherPerson = otherParticipants?.find((p: any) => p.user_id !== userId);
+            const otherParticipantData = participantsData?.find((p) => p.user_id !== userId);
+            // @ts-ignore - Supabase types for joined tables can be tricky
+            const otherPersonProfile = otherParticipantData?.profiles;
 
             return {
               ...conv,
               message_count: count || 0,
-              other_participant: otherPerson?.display_name || otherPerson?.full_name || otherPerson?.email || 'Unknown',
+              other_participant: otherPersonProfile?.display_name || otherPersonProfile?.full_name || 'Unknown',
             };
           })
         );

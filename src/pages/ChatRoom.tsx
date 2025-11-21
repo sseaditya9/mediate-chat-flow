@@ -89,12 +89,28 @@ const ChatRoom = () => {
 
     const fetchParticipants = async () => {
       const { data, error } = await supabase
-        .rpc('get_conversation_participants', { conversation_uuid: conversationId });
+        .from('conversation_participants')
+        .select(`
+          user_id,
+          profiles:profiles(
+            full_name,
+            display_name,
+            avatar_url
+          )
+        `)
+        .eq('conversation_id', conversationId);
 
       if (error) {
         console.error('Error fetching participants:', error);
       } else {
-        setParticipants(data || []);
+        const formattedParticipants = data.map((p: any) => ({
+          user_id: p.user_id,
+          full_name: p.profiles?.full_name || null,
+          display_name: p.profiles?.display_name || null,
+          avatar_url: p.profiles?.avatar_url || null,
+          email: '' // Email not available in profiles table
+        }));
+        setParticipants(formattedParticipants);
       }
     };
 
