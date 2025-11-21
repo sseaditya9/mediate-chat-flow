@@ -176,7 +176,7 @@ Return exactly one JSON object matching the schema in the system prompt.
     ];
 
     // Request function with retry for JSON-valid output
-    async function callOpenAI(temperature = 0.25) {
+    async function callOpenAI(temperature = 0.4) {
       const resp = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -187,7 +187,7 @@ Return exactly one JSON object matching the schema in the system prompt.
           model: 'gpt-5.1',
           messages: openaiMessages,
           temperature,
-          max_tokens: 900
+          max_completion_tokens: 900
         })
       });
       if (!resp.ok) {
