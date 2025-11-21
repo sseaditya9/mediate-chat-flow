@@ -88,20 +88,31 @@ const ChatRoom = () => {
     };
 
     const fetchParticipants = async () => {
-      const { data, error } = await supabase
+      const { data: rpcData, error } = await supabase
         .rpc('get_conversation_participants', { conversation_uuid: conversationId });
 
       if (error) {
         console.error('Error fetching participants:', error);
       } else {
-        console.log('Participants data from RPC:', data);
-        const formattedParticipants = (data || []).map((p: any) => ({
-          user_id: p.user_id,
-          full_name: p.full_name,
-          display_name: p.display_name,
-          avatar_url: p.avatar_url,
-          email: p.email
-        }));
+        console.log('Participants data from RPC:', rpcData);
+
+        // Fetch profiles directly for all participants to ensure fresh data
+        const userIds = (rpcData || []).map((p: any) => p.user_id);
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, display_name, full_name, avatar_url')
+          .in('id', userIds);
+
+        const formattedParticipants = (rpcData || []).map((p: any) => {
+          const profile = profilesData?.find(prof => prof.id === p.user_id);
+          return {
+            user_id: p.user_id,
+            full_name: profile?.full_name || p.full_name,
+            display_name: profile?.display_name || p.display_name,
+            avatar_url: profile?.avatar_url || p.avatar_url,
+            email: p.email
+          };
+        });
         setParticipants(formattedParticipants);
       }
     };

@@ -68,15 +68,31 @@ export const ConversationList = ({ userId }: { userId: string }) => {
             }
 
             const otherPerson = otherParticipants?.find((p: any) => p.user_id !== userId);
-
             let displayName = 'Unknown';
+
             if (otherPerson) {
-              if (otherPerson.display_name && otherPerson.display_name.trim().length > 0) {
-                displayName = otherPerson.display_name.trim();
-              } else if (otherPerson.full_name && otherPerson.full_name.trim().length > 0) {
-                displayName = otherPerson.full_name.trim();
-              } else if (otherPerson.email) {
-                displayName = otherPerson.email;
+              // Try to fetch profile directly to get the latest display_name
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('display_name, full_name')
+                .eq('id', otherPerson.user_id)
+                .single();
+
+              if (profileData) {
+                if (profileData.display_name && profileData.display_name.trim().length > 0) {
+                  displayName = profileData.display_name.trim();
+                } else if (profileData.full_name && profileData.full_name.trim().length > 0) {
+                  displayName = profileData.full_name.trim();
+                }
+              } else {
+                // Fallback to RPC data if direct fetch fails (e.g. RLS)
+                if (otherPerson.display_name && otherPerson.display_name.trim().length > 0) {
+                  displayName = otherPerson.display_name.trim();
+                } else if (otherPerson.full_name && otherPerson.full_name.trim().length > 0) {
+                  displayName = otherPerson.full_name.trim();
+                } else if (otherPerson.email) {
+                  displayName = otherPerson.email;
+                }
               }
             }
 
