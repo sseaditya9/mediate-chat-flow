@@ -105,8 +105,8 @@ const ChatRoom = () => {
       } else {
         const formattedParticipants = data.map((p: any) => ({
           user_id: p.user_id,
-          full_name: p.profiles?.full_name || null,
-          display_name: p.profiles?.display_name || null,
+          full_name: p.profiles?.full_name?.trim() || null,
+          display_name: p.profiles?.display_name?.trim() || null,
           avatar_url: p.profiles?.avatar_url || null,
           email: '' // Email not available in profiles table
         }));

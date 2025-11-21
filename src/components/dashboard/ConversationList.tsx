@@ -75,10 +75,13 @@ export const ConversationList = ({ userId }: { userId: string }) => {
             // @ts-ignore - Supabase types for joined tables can be tricky
             const otherPersonProfile = otherParticipantData?.profiles;
 
+            const displayName = otherPersonProfile?.display_name?.trim();
+            const fullName = otherPersonProfile?.full_name?.trim();
+
             return {
               ...conv,
               message_count: count || 0,
-              other_participant: otherPersonProfile?.display_name || otherPersonProfile?.full_name || 'Unknown',
+              other_participant: displayName || fullName || 'Unknown',
             };
           })
         );
