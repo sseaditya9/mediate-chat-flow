@@ -154,6 +154,17 @@ const ChatRoom = () => {
     };
   }, [conversationId, user]);
 
+  const getParticipantName = (participant: Participant | undefined) => {
+    if (!participant) return 'Unknown User';
+    if (participant.display_name && participant.display_name.trim().length > 0) {
+      return participant.display_name.trim();
+    }
+    if (participant.full_name && participant.full_name.trim().length > 0) {
+      return participant.full_name.trim();
+    }
+    return participant.email || 'Unknown User';
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -197,12 +208,17 @@ const ChatRoom = () => {
         msg.id === tempId ? { ...data, status: 'sent' } : msg
       ));
 
+      // Get current user's name for the mediator
+      const currentParticipant = participants.find(p => p.user_id === user.id);
+      const userName = getParticipantName(currentParticipant);
+
       // Step 2: Invoke the AI mediator (Non-blocking)
       // We don't await this to block the UI, but we catch errors if needed
       supabase.functions.invoke('mediate-message', {
         body: {
           conversationId: conversationId,
-          userMessage: messageText
+          userMessage: messageText,
+          userName: userName // Added userName
         }
       }).then(({ error }) => {
         if (error) {
@@ -259,21 +275,10 @@ const ChatRoom = () => {
                     className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-full border border-accent/20"
                   >
                     <div className="w-6 h-6 rounded-full bg-primary/30 flex items-center justify-center text-xs font-semibold text-primary-foreground">
-                      {(() => {
-                        const name = participant.display_name?.trim() || participant.full_name?.trim() || participant.email || 'U';
-                        return name.charAt(0).toUpperCase();
-                      })()}
+                      {getParticipantName(participant).charAt(0).toUpperCase()}
                     </div>
                     <span className="text-sm text-foreground">
-                      {(() => {
-                        if (participant.display_name && participant.display_name.trim().length > 0) {
-                          return participant.display_name.trim();
-                        }
-                        if (participant.full_name && participant.full_name.trim().length > 0) {
-                          return participant.full_name.trim();
-                        }
-                        return participant.email || 'Unknown User';
-                      })()}
+                      {getParticipantName(participant)}
                     </span>
                   </div>
                 ))}

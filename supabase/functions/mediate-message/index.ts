@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { conversationId, userMessage, userName } = await req.json();
+    const { conversationId, userMessage, userName = "A user" } = await req.json();
 
     console.log(`Panchayat summoned by ${userName} in conversation:`, conversationId);
     console.log('Summoning message:', userMessage);
