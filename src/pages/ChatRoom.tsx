@@ -97,10 +97,10 @@ const ChatRoom = () => {
         console.log('Participants data from RPC:', data);
         const formattedParticipants = (data || []).map((p: any) => ({
           user_id: p.user_id,
-          full_name: p.full_name?.trim() || null,
-          display_name: p.display_name?.trim() || null,
-          avatar_url: p.avatar_url || null,
-          email: p.email || ''
+          full_name: p.full_name,
+          display_name: p.display_name,
+          avatar_url: p.avatar_url,
+          email: p.email
         }));
         setParticipants(formattedParticipants);
       }
@@ -225,10 +225,21 @@ const ChatRoom = () => {
                     className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-full border border-accent/20"
                   >
                     <div className="w-6 h-6 rounded-full bg-primary/30 flex items-center justify-center text-xs font-semibold text-primary-foreground">
-                      {(participant.display_name || participant.full_name || participant.email || 'U').charAt(0).toUpperCase()}
+                      {(() => {
+                        const name = participant.display_name?.trim() || participant.full_name?.trim() || participant.email || 'U';
+                        return name.charAt(0).toUpperCase();
+                      })()}
                     </div>
                     <span className="text-sm text-foreground">
-                      {participant.display_name || participant.full_name || participant.email}
+                      {(() => {
+                        if (participant.display_name && participant.display_name.trim().length > 0) {
+                          return participant.display_name.trim();
+                        }
+                        if (participant.full_name && participant.full_name.trim().length > 0) {
+                          return participant.full_name.trim();
+                        }
+                        return participant.email || 'Unknown User';
+                      })()}
                     </span>
                   </div>
                 ))}

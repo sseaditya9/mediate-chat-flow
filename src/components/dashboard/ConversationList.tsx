@@ -69,14 +69,21 @@ export const ConversationList = ({ userId }: { userId: string }) => {
 
             const otherPerson = otherParticipants?.find((p: any) => p.user_id !== userId);
 
-            const displayName = otherPerson?.display_name?.trim();
-            const fullName = otherPerson?.full_name?.trim();
-            const email = otherPerson?.email;
+            let displayName = 'Unknown';
+            if (otherPerson) {
+              if (otherPerson.display_name && otherPerson.display_name.trim().length > 0) {
+                displayName = otherPerson.display_name.trim();
+              } else if (otherPerson.full_name && otherPerson.full_name.trim().length > 0) {
+                displayName = otherPerson.full_name.trim();
+              } else if (otherPerson.email) {
+                displayName = otherPerson.email;
+              }
+            }
 
             return {
               ...conv,
               message_count: count || 0,
-              other_participant: displayName || fullName || email || 'Unknown',
+              other_participant: displayName,
             };
           })
         );
