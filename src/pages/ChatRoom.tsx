@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send, Loader2 } from "lucide-react";
 import type { User, RealtimeChannel } from "@supabase/supabase-js";
 
 interface Message {
@@ -13,6 +13,7 @@ interface Message {
   sender_id: string | null;
   is_ai_mediator: boolean;
   created_at: string;
+  status?: 'sending' | 'sent' | 'error'; // Added status for optimistic UI
 }
 
 interface Participant {
@@ -29,7 +30,7 @@ const ChatRoom = () => {
   const [user, setUser] = useState<User | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [sending, setSending] = useState(false);
+  // const [sending, setSending] = useState(false); // Removed blocking sending state
   const [inviteCode, setInviteCode] = useState<string>("");
   const [conversationTitle, setConversationTitle] = useState<string>("");
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -132,7 +133,14 @@ const ChatRoom = () => {
           filter: `conversation_id=eq.${conversationId}`
         },
         (payload) => {
-          setMessages(prev => [...prev, payload.new as Message]);
+          const newMessage = payload.new as Message;
+          setMessages(prev => {
+            // Check if message already exists (deduplication for optimistic updates)
+            if (prev.some(msg => msg.id === newMessage.id)) {
+              return prev;
+            }
+            return [...prev, newMessage];
+          });
         }
       )
       .subscribe();
@@ -146,55 +154,70 @@ const ChatRoom = () => {
     };
   }, [conversationId, user]);
 
-  // --- THIS IS THE SINGLE, CORRECTED FUNCTION ---
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Debugging logs to confirm our data is correct
-    console.log("--- SEND MESSAGE INITIATED ---");
-    console.log("User email:", user?.email);
-    console.log("Value of conversationId from useParams():", conversationId);
-
     if (!newMessage.trim() || !user || !conversationId) {
-      console.warn("Guard clause triggered. Aborting send.");
       return;
     }
 
-    try {
-      setSending(true);
-      const messageText = newMessage.trim();
+    const messageText = newMessage.trim();
+    const tempId = Date.now(); // Temporary ID for optimistic update
 
+    // Optimistic Update
+    const optimisticMessage: Message = {
+      id: tempId,
+      content: messageText,
+      sender_id: user.id,
+      is_ai_mediator: false,
+      created_at: new Date().toISOString(),
+      status: 'sending'
+    };
+
+    setMessages(prev => [...prev, optimisticMessage]);
+    setNewMessage(""); // Clear input immediately
+
+    try {
       // Step 1: Insert the user's message
-      const { error: insertError } = await supabase
+      const { data, error: insertError } = await supabase
         .from('messages')
         .insert({
           content: messageText,
           conversation_id: conversationId,
           sender_id: user.id,
           is_ai_mediator: false
-        });
+        })
+        .select()
+        .single();
 
       if (insertError) throw insertError;
 
-      setNewMessage("");
+      // Update the optimistic message with the real one
+      setMessages(prev => prev.map(msg =>
+        msg.id === tempId ? { ...data, status: 'sent' } : msg
+      ));
 
-      // Step 2: Invoke the AI mediator with the CORRECT property name
-      const { error: functionError } = await supabase.functions.invoke('mediate-message', {
+      // Step 2: Invoke the AI mediator (Non-blocking)
+      // We don't await this to block the UI, but we catch errors if needed
+      supabase.functions.invoke('mediate-message', {
         body: {
-          conversationId: conversationId, // camelCase to match edge function
+          conversationId: conversationId,
           userMessage: messageText
+        }
+      }).then(({ error }) => {
+        if (error) {
+          console.error('AI mediation error:', error);
         }
       });
 
-      if (functionError) {
-        // This is a "soft" error, we don't need to throw it, just log it.
-        console.error('AI mediation error:', functionError);
-      }
     } catch (error: any) {
       console.error('Error sending message:', error);
       toast.error(error.message || 'Failed to send message');
-    } finally {
-      setSending(false);
+
+      // Mark message as failed
+      setMessages(prev => prev.map(msg =>
+        msg.id === tempId ? { ...msg, status: 'error' } : msg
+      ));
     }
   };
 
@@ -278,7 +301,7 @@ const ChatRoom = () => {
                   : message.sender_id === user?.id
                     ? 'bg-user-message text-primary-foreground'
                     : 'bg-other-message text-foreground'
-                  }`}
+                  } ${message.status === 'sending' ? 'opacity-70' : ''} ${message.status === 'error' ? 'border border-destructive' : ''}`}
               >
                 {message.is_ai_mediator && (
                   <p className="text-xs font-semibold mb-1 opacity-80">
@@ -286,6 +309,16 @@ const ChatRoom = () => {
                   </p>
                 )}
                 <p className="text-sm leading-relaxed">{message.content}</p>
+                {message.status === 'sending' && (
+                  <span className="text-[10px] opacity-70 flex items-center gap-1 mt-1 justify-end">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Sending...
+                  </span>
+                )}
+                {message.status === 'error' && (
+                  <span className="text-[10px] text-destructive-foreground flex items-center gap-1 mt-1 justify-end">
+                    Failed to send
+                  </span>
+                )}
               </div>
             </div>
           ))}
@@ -299,10 +332,9 @@ const ChatRoom = () => {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
-            disabled={sending}
             className="flex-1 bg-input border-border focus:border-primary"
           />
-          <Button type="submit" disabled={sending || !newMessage.trim()} size="icon" className="bg-primary hover:bg-primary/90">
+          <Button type="submit" disabled={!newMessage.trim()} size="icon" className="bg-primary hover:bg-primary/90">
             <Send className="w-4 h-4" />
           </Button>
         </form>
