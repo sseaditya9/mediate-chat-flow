@@ -18,6 +18,7 @@ interface Message {
 interface Participant {
   user_id: string;
   full_name: string | null;
+  display_name: string | null;
   avatar_url: string | null;
   email: string;
 }
@@ -136,8 +137,8 @@ const ChatRoom = () => {
     console.log("Value of conversationId from useParams():", conversationId);
 
     if (!newMessage.trim() || !user || !conversationId) {
-        console.warn("Guard clause triggered. Aborting send.");
-        return;
+      console.warn("Guard clause triggered. Aborting send.");
+      return;
     }
 
     try {
@@ -216,10 +217,10 @@ const ChatRoom = () => {
                     className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-full border border-accent/20"
                   >
                     <div className="w-6 h-6 rounded-full bg-primary/30 flex items-center justify-center text-xs font-semibold text-primary-foreground">
-                      {(participant.full_name || participant.email || 'U').charAt(0).toUpperCase()}
+                      {(participant.display_name || participant.full_name || participant.email || 'U').charAt(0).toUpperCase()}
                     </div>
                     <span className="text-sm text-foreground">
-                      {participant.full_name || participant.email}
+                      {participant.display_name || participant.full_name || participant.email}
                     </span>
                   </div>
                 ))}
@@ -234,22 +235,20 @@ const ChatRoom = () => {
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex ${
-                message.is_ai_mediator
-                  ? 'justify-center'
-                  : message.sender_id === user?.id
+              className={`flex ${message.is_ai_mediator
+                ? 'justify-center'
+                : message.sender_id === user?.id
                   ? 'justify-end'
                   : 'justify-start'
-              }`}
+                }`}
             >
               <div
-                className={`max-w-[70%] rounded-2xl px-4 py-3 ${
-                  message.is_ai_mediator
-                    ? 'bg-ai-mediator text-ai-mediator-foreground'
-                    : message.sender_id === user?.id
+                className={`max-w-[70%] rounded-2xl px-4 py-3 ${message.is_ai_mediator
+                  ? 'bg-ai-mediator text-ai-mediator-foreground'
+                  : message.sender_id === user?.id
                     ? 'bg-user-message text-primary-foreground'
                     : 'bg-other-message text-foreground'
-                }`}
+                  }`}
               >
                 {message.is_ai_mediator && (
                   <p className="text-xs font-semibold mb-1 opacity-80">

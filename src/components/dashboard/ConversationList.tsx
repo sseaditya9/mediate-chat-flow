@@ -68,7 +68,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
             return {
               ...conv,
               message_count: count || 0,
-              other_participant: otherPerson?.full_name || otherPerson?.email || 'Unknown',
+              other_participant: otherPerson?.display_name || otherPerson?.full_name || otherPerson?.email || 'Unknown',
             };
           })
         );
