@@ -7,6 +7,7 @@ import Auth from "./pages/Auth";
 import Account from "./pages/Account";
 import About from "./pages/About";
 import { Header } from "@/components/layout/Header";
+import { GlobalControls } from "@/components/layout/GlobalControls";
 import { ThemeProvider } from "@/components/theme-provider";
 import Dashboard from "./pages/Dashboard";
 import ChatRoom from "./pages/ChatRoom";
@@ -21,6 +22,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Header />
+          <GlobalControls />
           <Routes>
             <Route path="/" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />

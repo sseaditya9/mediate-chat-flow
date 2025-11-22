@@ -1,6 +1,4 @@
-import { Link } from "react-router-dom";
-import { ModeToggle } from "@/components/mode-toggle";
-import { UserNav } from "@/components/UserNav";
+import { Link, useLocation } from "react-router-dom";
 import { CreateConversationDialog } from "@/components/dashboard/CreateConversationDialog";
 import { JoinConversationDialog } from "@/components/dashboard/JoinConversationDialog";
 import { useEffect, useState } from "react";
@@ -9,6 +7,7 @@ import { User } from "@supabase/supabase-js";
 
 export function Header() {
     const [user, setUser] = useState<User | null>(null);
+    const location = useLocation();
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -23,6 +22,10 @@ export function Header() {
 
         return () => subscription.unsubscribe();
     }, []);
+
+    if (location.pathname.startsWith("/chat/")) {
+        return null;
+    }
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -49,10 +52,6 @@ export function Header() {
                             <JoinConversationDialog user={user} />
                         </nav>
                     )}
-                    <div className="flex items-center gap-2 ml-2">
-                        <ModeToggle />
-                        {user && <UserNav />}
-                    </div>
                 </div>
             </div>
         </header>
