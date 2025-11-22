@@ -185,7 +185,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
           Your sessions
         </CardTitle>
         <CardDescription>
-          {conversations.length} active TheFiveElders{conversations.length !== 1 ? 's' : ''}
+          {conversations.length} active Session{conversations.length !== 1 ? 's' : ''}
         </CardDescription>
       </CardHeader>
       <CardContent>
