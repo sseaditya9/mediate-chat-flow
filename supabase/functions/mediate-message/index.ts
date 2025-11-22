@@ -271,7 +271,16 @@ Ensure 'win_meter' uses the names "${name1}" and "${name2}" for left/right keys.
 
     // Encrypt AI response if key exists
     if (encryptionKey) {
-      aiMessageContent = AES.encrypt(aiMessageContent, encryptionKey).toString();
+      console.log('[mediate] Encrypting AI response...');
+      try {
+        const encrypted = AES.encrypt(aiMessageContent, encryptionKey).toString();
+        aiMessageContent = encrypted;
+        console.log('[mediate] AI response encrypted successfully.');
+      } catch (encError) {
+        console.error('[mediate] Encryption failed:', encError);
+      }
+    } else {
+      console.warn('[mediate] No encryption key found. Saving AI response in plain text.');
     }
 
     // Insert mediator message into Supabase
