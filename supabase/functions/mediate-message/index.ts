@@ -1,5 +1,6 @@
 // mediate-message.js (Deno)
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { AES, enc } from 'https://esm.sh/crypto-js@4.2.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -67,6 +68,17 @@ function safeJsonParse(str: string) {
   }
 }
 
+// Helper: decrypt message
+function decryptMessage(content: string, key: string) {
+  try {
+    const bytes = AES.decrypt(content, key);
+    const decrypted = bytes.toString(enc.Utf8);
+    return decrypted || content; // Fallback to original if empty (e.g. not encrypted)
+  } catch (e) {
+    return content; // Fallback for legacy
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -91,7 +103,20 @@ Deno.serve(async (req) => {
     }
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log(`[mediate] conversation=${conversationId} user=${userName} msg="${userMessage}"`);
+    console.log(`[mediate] conversation=${conversationId} user=${userName}`);
+
+    // Fetch encryption key
+    const { data: keyData, error: keyError } = await supabase
+      .from('conversation_keys')
+      .select('secret_key')
+      .eq('conversation_id', conversationId)
+      .maybeSingle();
+
+    const encryptionKey = keyData?.secret_key;
+
+    // Decrypt user message if key exists
+    const decryptedUserMessage = encryptionKey ? decryptMessage(userMessage, encryptionKey) : userMessage;
+    console.log(`[mediate] Decrypted user message: "${decryptedUserMessage}"`);
 
     // Fetch last messages (most recent first), limited
     const { data: messagesRaw, error: fetchError } = await supabase
@@ -147,11 +172,15 @@ Deno.serve(async (req) => {
           ? m.sender.display_name
           : (m.sender.full_name || 'User');
       }
-      labeledLines.push(`${speakerName}: ${m.content}`);
+
+      // Decrypt content
+      const decryptedContent = encryptionKey ? decryptMessage(m.content, encryptionKey) : m.content;
+
+      labeledLines.push(`${speakerName}: ${decryptedContent}`);
     }
 
     // Add the new message
-    labeledLines.push(`${userName}: ${userMessage}`);
+    labeledLines.push(`${userName}: ${decryptedUserMessage}`);
 
     // Build the structured conversation for the prompt (oldest->newest)
     const conversationText = labeledLines.join('\n');
@@ -160,7 +189,7 @@ Deno.serve(async (req) => {
     const userMeta = `
 Participants: ${partyNames.join(', ')}
 Last Sender: ${userName}
-New Message: "${userMessage}"
+New Message: "${decryptedUserMessage}"
 
 Conversation (oldest->newest):
 ${conversationText}
@@ -238,7 +267,12 @@ Ensure 'win_meter' uses the names "${name1}" and "${name2}" for left/right keys.
     }
 
     // Build message content to insert into DB. We'll store the raw JSON + a human-friendly text for UI
-    const aiMessageContent = JSON.stringify(finalResponseObj);
+    let aiMessageContent = JSON.stringify(finalResponseObj);
+
+    // Encrypt AI response if key exists
+    if (encryptionKey) {
+      aiMessageContent = AES.encrypt(aiMessageContent, encryptionKey).toString();
+    }
 
     // Insert mediator message into Supabase
     const { error: insertError } = await supabase.from('messages').insert({

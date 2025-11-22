@@ -4,11 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Lock } from "lucide-react";
 import AIMediatorMessage from "@/components/chat/AIMediatorMessage";
 import ChatHeader from "@/components/chat/ChatHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { User, RealtimeChannel } from "@supabase/supabase-js";
+import AES from 'crypto-js/aes';
+import encUtf8 from 'crypto-js/enc-utf8';
 
 interface Message {
   id: number;
@@ -42,6 +44,7 @@ const ChatRoom = () => {
   const [conversationTitle, setConversationTitle] = useState<string>("");
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [winOMeter, setWinOMeter] = useState<WinOMeterData | null>(null);
+  const [encryptionKey, setEncryptionKey] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
 
@@ -53,12 +56,35 @@ const ChatRoom = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Helper to decrypt message content
+  const decryptMessage = (content: string, key: string | null) => {
+    if (!key) return content;
+    try {
+      // Attempt to decrypt
+      const bytes = AES.decrypt(content, key);
+      const decrypted = bytes.toString(encUtf8);
+      // If decryption yields empty string (and original wasn't), it might be malformed or wrong key
+      // But usually AES.decrypt throws or returns garbage if wrong.
+      // If it's not valid UTF8, it might be empty.
+      if (!decrypted) {
+        // Fallback: maybe it wasn't encrypted?
+        return content;
+      }
+      return decrypted;
+    } catch (e) {
+      // Fallback for legacy unencrypted messages
+      return content;
+    }
+  };
+
   // Win-O-Meter Parsing Logic
   useEffect(() => {
     const lastAiMessage = [...messages].reverse().find(m => m.is_ai_mediator);
     if (lastAiMessage) {
       try {
-        const parsed = JSON.parse(lastAiMessage.content);
+        // Decrypt first if needed
+        const contentToParse = encryptionKey ? decryptMessage(lastAiMessage.content, encryptionKey) : lastAiMessage.content;
+        const parsed = JSON.parse(contentToParse);
         if (parsed.win_meter) {
           setWinOMeter(parsed.win_meter);
         }
@@ -67,7 +93,7 @@ const ChatRoom = () => {
         console.log("Could not parse AI message for Win-O-Meter", e);
       }
     }
-  }, [messages]);
+  }, [messages, encryptionKey]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -78,6 +104,54 @@ const ChatRoom = () => {
       }
     });
   }, [navigate]);
+
+  // Fetch or Generate Encryption Key
+  useEffect(() => {
+    if (!conversationId || !user) return;
+
+    const setupEncryption = async () => {
+      // Try to fetch existing key
+      const { data, error } = await (supabase
+        .from('conversation_keys' as any)
+        .select('secret_key')
+        .eq('conversation_id', conversationId)
+        .maybeSingle());
+
+      if (data) {
+        setEncryptionKey((data as any).secret_key);
+      } else {
+        // No key found, generate one (only if we are a participant)
+        // Check if we are a participant first to avoid RLS error on insert
+        // (But we should be if we are here, assuming flow)
+
+        // Generate a random key
+        const newKey = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
+
+        const { error: insertError } = await (supabase
+          .from('conversation_keys' as any)
+          .insert({
+            conversation_id: conversationId,
+            secret_key: newKey
+          }));
+
+        if (!insertError) {
+          setEncryptionKey(newKey);
+        } else {
+          console.error('Error creating encryption key:', insertError);
+          // If insert failed, maybe someone else created it just now? Retry fetch
+          const { data: retryData } = await (supabase
+            .from('conversation_keys' as any)
+            .select('secret_key')
+            .eq('conversation_id', conversationId)
+            .maybeSingle());
+
+          if (retryData) setEncryptionKey((retryData as any).secret_key);
+        }
+      }
+    };
+
+    setupEncryption();
+  }, [conversationId, user]);
 
   useEffect(() => {
     if (!conversationId || !user) return;
@@ -204,12 +278,23 @@ const ChatRoom = () => {
       return;
     }
 
-    const messageText = newMessage.trim();
+    // Encrypt if key is available
+    let contentToSend = newMessage.trim();
+    if (encryptionKey) {
+      contentToSend = AES.encrypt(contentToSend, encryptionKey).toString();
+    }
+
+    const messageText = newMessage.trim(); // Keep original for optimistic UI
     const tempId = Date.now();
 
     const optimisticMessage: Message = {
       id: tempId,
-      content: messageText,
+      content: contentToSend, // Store encrypted in state? No, we want to show decrypted.
+      // Actually, for optimistic UI we should show the plain text.
+      // But the message object in state usually mirrors DB.
+      // Let's store the ENCRYPTED content in the message object, 
+      // and let the render logic decrypt it.
+      // Wait, if we store encrypted, we need to make sure render logic works.
       sender_id: user.id,
       is_ai_mediator: false,
       created_at: new Date().toISOString(),
@@ -223,7 +308,7 @@ const ChatRoom = () => {
       const { data, error: insertError } = await supabase
         .from('messages')
         .insert({
-          content: messageText,
+          content: contentToSend,
           conversation_id: conversationId,
           sender_id: user.id,
           is_ai_mediator: false
@@ -243,7 +328,7 @@ const ChatRoom = () => {
       supabase.functions.invoke('mediate-message', {
         body: {
           conversationId: conversationId,
-          userMessage: messageText,
+          userMessage: contentToSend, // Send encrypted message to AI
           userName: userName,
           participants: participants.map(p => ({
             ...p,
@@ -290,6 +375,9 @@ const ChatRoom = () => {
             const sender = participants.find(p => p.user_id === message.sender_id);
             const senderName = getParticipantName(sender);
 
+            // Decrypt content for display
+            const decryptedContent = decryptMessage(message.content, encryptionKey);
+
             return (
               <div
                 key={message.id}
@@ -320,7 +408,7 @@ const ChatRoom = () => {
                   )}
 
                   {isAI ? (
-                    <AIMediatorMessage content={message.content} />
+                    <AIMediatorMessage content={decryptedContent} />
                   ) : (
                     <div className="flex flex-col">
                       {!isUser && (
@@ -328,7 +416,7 @@ const ChatRoom = () => {
                           {senderName}
                         </span>
                       )}
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{decryptedContent}</p>
                     </div>
                   )}
 
@@ -369,7 +457,7 @@ const ChatRoom = () => {
             className="flex-1 bg-input border-border focus:border-primary h-11"
           />
           <Button type="submit" disabled={!newMessage.trim()} size="icon" className="bg-primary hover:bg-primary/90 h-11 w-11 rounded-xl">
-            <Send className="w-5 h-5" />
+            {encryptionKey ? <Lock className="w-4 h-4" /> : <Send className="w-5 h-5" />}
           </Button>
         </form>
       </div>
