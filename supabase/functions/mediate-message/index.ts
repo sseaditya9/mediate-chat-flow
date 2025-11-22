@@ -57,7 +57,7 @@ Assistant (ack):
 `;
 
 // Helper: safe JSON parse
-function safeJsonParse(str) {
+function safeJsonParse(str: string) {
   try {
     return JSON.parse(str);
   } catch (e) {
@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
     // Fetch last messages (most recent first), limited
     const { data: messagesRaw, error: fetchError } = await supabase
       .from('messages')
-      .select('content, is_ai_mediator, created_at, sender:profiles ( full_name )')
+      .select('content, is_ai_mediator, created_at, sender:profiles ( full_name, display_name )')
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: false })
       .limit(20);
@@ -104,10 +104,16 @@ Deno.serve(async (req) => {
     const messages = (messagesRaw || []).slice().reverse();
 
     // Determine party labels (partyA, partyB) from unique non-AI senders in history + current sender
-    const humanNames = [];
+    const humanNames: string[] = [];
     for (const m of messages) {
       if (!m.is_ai_mediator) {
-        const name = (m.sender && m.sender.full_name) ? m.sender.full_name : 'User';
+        const sender = m.sender;
+        let name = 'User';
+        if (sender) {
+          name = (sender.display_name && sender.display_name.trim())
+            ? sender.display_name
+            : (sender.full_name || 'User');
+        }
         if (!humanNames.includes(name)) humanNames.push(name);
         if (humanNames.length >= 2) break;
       }
@@ -117,22 +123,30 @@ Deno.serve(async (req) => {
     // keep only up to 2 unique human names
     const [partyAName = 'A', partyBName = 'B'] = Array.from(new Set(humanNames)).slice(0, 2);
 
-    // Map message list to labeled A/B lines; include AI lines as "AI Sarpanch"
+    // Map message list to labeled A/B lines; include AI lines as "TheFiveElders"
     const labeledLines = [];
     for (const m of messages) {
-      const speaker = m.is_ai_mediator ? 'AI Sarpanch' : (m.sender && m.sender.full_name) ? m.sender.full_name : 'User';
+      let speakerName = 'User';
+      if (m.is_ai_mediator) {
+        speakerName = 'TheFiveElders';
+      } else if (m.sender) {
+        speakerName = (m.sender.display_name && m.sender.display_name.trim())
+          ? m.sender.display_name
+          : (m.sender.full_name || 'User');
+      }
+
       let label;
-      if (speaker === 'AI Sarpanch') {
+      if (speakerName === 'TheFiveElders') {
         label = 'AI';
-      } else if (speaker === partyAName) {
+      } else if (speakerName === partyAName) {
         label = 'A';
-      } else if (speaker === partyBName) {
+      } else if (speakerName === partyBName) {
         label = 'B';
       } else {
         // if some third person appears, fold into B if B is empty, otherwise mark as B
         label = 'B';
       }
-      labeledLines.push(`${label} (${speaker}): ${m.content}`);
+      labeledLines.push(`${label} (${speakerName}): ${m.content}`);
     }
 
     // Add the new message as the last turn (sender = userName)

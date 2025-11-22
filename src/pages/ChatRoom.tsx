@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { ArrowLeft, Send, Loader2 } from "lucide-react";
+import AIMediatorMessage from "@/components/chat/AIMediatorMessage";
 import type { User, RealtimeChannel } from "@supabase/supabase-js";
 
 interface Message {
@@ -212,7 +213,7 @@ const ChatRoom = () => {
       const currentParticipant = participants.find(p => p.user_id === user.id);
       const userName = getParticipantName(currentParticipant);
 
-      // Step 2: Invoke the AI mediator (Non-blocking)
+      // Step 2: Invoke the TheFiveElders (Non-blocking)
       // We don't await this to block the UI, but we catch errors if needed
       supabase.functions.invoke('mediate-message', {
         body: {
@@ -310,10 +311,14 @@ const ChatRoom = () => {
               >
                 {message.is_ai_mediator && (
                   <p className="text-xs font-semibold mb-1 opacity-80">
-                    AI Mediator
+                    TheFiveElders
                   </p>
                 )}
-                <p className="text-sm leading-relaxed">{message.content}</p>
+                {message.is_ai_mediator ? (
+                  <AIMediatorMessage content={message.content} />
+                ) : (
+                  <p className="text-sm leading-relaxed">{message.content}</p>
+                )}
                 {message.status === 'sending' && (
                   <span className="text-[10px] opacity-70 flex items-center gap-1 mt-1 justify-end">
                     <Loader2 className="w-3 h-3 animate-spin" /> Sending...
