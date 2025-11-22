@@ -240,6 +240,19 @@ const ChatRoom = () => {
           });
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversation_participants',
+          filter: `conversation_id=eq.${conversationId}`
+        },
+        () => {
+          console.log('New participant joined! Refreshing list...');
+          fetchParticipants();
+        }
+      )
       .subscribe();
 
     channelRef.current = channel;
