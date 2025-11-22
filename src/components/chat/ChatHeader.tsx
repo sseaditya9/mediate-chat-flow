@@ -45,17 +45,33 @@ const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, invit
     let rightSide = winOMeter?.right;
 
     if (winOMeter && winOMeter.left && winOMeter.right && currentUser) {
-        const currentName = getDisplayName(currentUser).toLowerCase();
-        const leftName = winOMeter.left.name.toLowerCase();
-        const rightName = winOMeter.right.name.toLowerCase();
+        const currentName = getDisplayName(currentUser).toLowerCase().trim();
+        const leftName = winOMeter.left.name.toLowerCase().trim();
+        const rightName = winOMeter.right.name.toLowerCase().trim();
 
-        // If Left is Me, swap them so Me is on Right
-        if (leftName.includes(currentName) || currentName.includes(leftName)) {
+        // Check if Left matches Me
+        const leftMatchesMe = leftName.includes(currentName) || currentName.includes(leftName);
+        // Check if Right matches Me
+        const rightMatchesMe = rightName.includes(currentName) || currentName.includes(rightName);
+
+        if (leftMatchesMe && !rightMatchesMe) {
+            // Me is on Left, so Swap to put Me on Right
             leftSide = winOMeter.right;
             rightSide = winOMeter.left;
+        } else if (rightMatchesMe) {
+            // Me is on Right, No Swap
+        } else {
+            // Fallback: Try to match by parts of the name (e.g. first name)
+            const currentParts = currentName.split(' ');
+            const leftParts = leftName.split(' ');
+
+            const leftPartialMatch = currentParts.some(p => leftName.includes(p)) || leftParts.some(p => currentName.includes(p));
+
+            if (leftPartialMatch) {
+                leftSide = winOMeter.right;
+                rightSide = winOMeter.left;
+            }
         }
-        // If Right is Me, keep as is (Me is on Right)
-        // If neither matches clearly, keep as is
     }
 
     return (
