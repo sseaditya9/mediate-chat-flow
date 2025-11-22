@@ -22,13 +22,23 @@ const About = () => {
                             <span className="font-semibold text-foreground">The Five Elders</span> is an AI-mediated dispute resolution platform designed to bring clarity and fairness to conflicts.
                         </p>
                         <p>
-                            Inspired by the wisdom of ancient councils, our system employs advanced AI agents to act as impartial mediators. Whether it's a disagreement between friends, a workplace dispute, or a complex negotiation, The Five Elders provides a structured environment for dialogue.
+                            EldersFive is based on the legendary tradition of five wise elders who used to settle conflicts, big and small before anyone could storm off in a huff. They didn’t need degrees or long speeches, just authority, attitude, and a sharp sense of humor. So we stole that vibe.
                         </p>
                         <p>
-                            Our "Win-O-Meter" technology analyzes conversation dynamics in real-time, offering objective feedback on who is "winning" based on logic, empathy, and constructive engagement—not just rhetoric.
+                            Two people drop their drama.
+                            The Elders roll their eyes, ask the right questions, and deliver a verdict that actually makes sense.
+                            Fast. Fair. A little too honest.
                         </p>
                         <p>
-                            Let the wise decide.
+                            No therapy talk.
+                            No corporate jargon.
+                            Just modern problems solved with ancient confidence.
+                        </p>
+                        <p>
+                            We even added the Win-O-Meter™, because let’s be honest: half the fun of solving a conflict is knowing who actually had the point and who was just loud. It’s petty, it’s honest, and it keeps everyone humble.
+                        </p>
+                        <p>
+                            Because your tiny arguments deserve legendary resolutions.
                         </p>
                     </div>
                 </div>
