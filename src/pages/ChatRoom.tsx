@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowLeft, Send, Loader2 } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 import AIMediatorMessage from "@/components/chat/AIMediatorMessage";
+import ChatHeader from "@/components/chat/ChatHeader";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { User, RealtimeChannel } from "@supabase/supabase-js";
 
 interface Message {
@@ -14,7 +16,7 @@ interface Message {
   sender_id: string | null;
   is_ai_mediator: boolean;
   created_at: string;
-  status?: 'sending' | 'sent' | 'error'; // Added status for optimistic UI
+  status?: 'sending' | 'sent' | 'error';
 }
 
 interface Participant {
@@ -25,16 +27,21 @@ interface Participant {
   email: string;
 }
 
+interface WinOMeterData {
+  left: { name: string; score: number };
+  right: { name: string; score: number };
+}
+
 const ChatRoom = () => {
   const { conversationId } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  // const [sending, setSending] = useState(false); // Removed blocking sending state
   const [inviteCode, setInviteCode] = useState<string>("");
   const [conversationTitle, setConversationTitle] = useState<string>("");
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [winOMeter, setWinOMeter] = useState<WinOMeterData | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
 
@@ -44,6 +51,24 @@ const ChatRoom = () => {
 
   useEffect(() => {
     scrollToBottom();
+  }, [messages]);
+
+  // Win-O-Meter Parsing Logic
+  useEffect(() => {
+    const lastAiMessage = [...messages].reverse().find(m => m.is_ai_mediator);
+    if (lastAiMessage) {
+      // Expected format: "Win-O-Meter says: Name1 70% / Name2 30%"
+      // Flexible regex to capture names and percentages
+      const regex = /Win-O-Meter says:\s*(.+?)\s+(\d+)%\s*\/\s*(.+?)\s+(\d+)%/i;
+      const match = lastAiMessage.content.match(regex);
+
+      if (match) {
+        setWinOMeter({
+          left: { name: match[1].trim(), score: parseInt(match[2]) },
+          right: { name: match[3].trim(), score: parseInt(match[4]) }
+        });
+      }
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -136,7 +161,6 @@ const ChatRoom = () => {
         (payload) => {
           const newMessage = payload.new as Message;
           setMessages(prev => {
-            // Check if message already exists (deduplication for optimistic updates)
             if (prev.some(msg => msg.id === newMessage.id)) {
               return prev;
             }
@@ -166,6 +190,15 @@ const ChatRoom = () => {
     return participant.email || 'Unknown User';
   };
 
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -174,9 +207,8 @@ const ChatRoom = () => {
     }
 
     const messageText = newMessage.trim();
-    const tempId = Date.now(); // Temporary ID for optimistic update
+    const tempId = Date.now();
 
-    // Optimistic Update
     const optimisticMessage: Message = {
       id: tempId,
       content: messageText,
@@ -187,10 +219,9 @@ const ChatRoom = () => {
     };
 
     setMessages(prev => [...prev, optimisticMessage]);
-    setNewMessage(""); // Clear input immediately
+    setNewMessage("");
 
     try {
-      // Step 1: Insert the user's message
       const { data, error: insertError } = await supabase
         .from('messages')
         .insert({
@@ -204,22 +235,18 @@ const ChatRoom = () => {
 
       if (insertError) throw insertError;
 
-      // Update the optimistic message with the real one
       setMessages(prev => prev.map(msg =>
         msg.id === tempId ? { ...data, status: 'sent' } : msg
       ));
 
-      // Get current user's name for the mediator
       const currentParticipant = participants.find(p => p.user_id === user.id);
       const userName = getParticipantName(currentParticipant);
 
-      // Step 2: Invoke the TheFiveElders (Non-blocking)
-      // We don't await this to block the UI, but we catch errors if needed
       supabase.functions.invoke('mediate-message', {
         body: {
           conversationId: conversationId,
           userMessage: messageText,
-          userName: userName // Added userName
+          userName: userName
         }
       }).then(({ error }) => {
         if (error) {
@@ -231,7 +258,6 @@ const ChatRoom = () => {
       console.error('Error sending message:', error);
       toast.error(error.message || 'Failed to send message');
 
-      // Mark message as failed
       setMessages(prev => prev.map(msg =>
         msg.id === tempId ? { ...msg, status: 'error' } : msg
       ));
@@ -240,112 +266,101 @@ const ChatRoom = () => {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      <div className="border-b border-border bg-card px-4 py-3">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4 flex-1 min-w-0">
-              <Button onClick={() => navigate("/dashboard")} variant="ghost" size="sm" className="hover:bg-primary/10">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-sm text-foreground font-serif truncate">
-                  {conversationTitle}
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  {participants.length} participant{participants.length !== 1 ? 's' : ''}
-                </p>
-              </div>
-            </div>
-            {inviteCode && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Code:</span>
-                <span className="text-sm font-mono font-semibold text-foreground bg-muted px-3 py-1 rounded border border-accent/20">
-                  {inviteCode}
-                </span>
-              </div>
-            )}
-          </div>
-          {participants.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-border/50">
-              <p className="text-xs text-muted-foreground mb-2">Participants:</p>
-              <div className="flex flex-wrap gap-2">
-                {participants.map((participant) => (
-                  <div
-                    key={participant.user_id}
-                    className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-full border border-accent/20"
-                  >
-                    <div className="w-6 h-6 rounded-full bg-primary/30 flex items-center justify-center text-xs font-semibold text-primary-foreground">
-                      {getParticipantName(participant).charAt(0).toUpperCase()}
-                    </div>
-                    <span className="text-sm text-foreground">
-                      {getParticipantName(participant)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      <ChatHeader
+        title={conversationTitle}
+        participants={participants}
+        onBack={() => navigate("/dashboard")}
+        winOMeter={winOMeter}
+      />
 
       <div className="flex-1 overflow-y-auto px-4 py-6">
-        <div className="max-w-4xl mx-auto space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.is_ai_mediator
-                ? 'justify-center'
-                : message.sender_id === user?.id
-                  ? 'justify-end'
-                  : 'justify-start'
-                }`}
-            >
+        <div className="max-w-4xl mx-auto space-y-6">
+          {messages.map((message) => {
+            const isUser = message.sender_id === user?.id;
+            const isAI = message.is_ai_mediator;
+            const sender = participants.find(p => p.user_id === message.sender_id);
+            const senderName = getParticipantName(sender);
+
+            return (
               <div
-                className={`max-w-[70%] rounded-2xl px-4 py-3 ${message.is_ai_mediator
-                  ? 'bg-ai-mediator text-ai-mediator-foreground'
-                  : message.sender_id === user?.id
-                    ? 'bg-user-message text-primary-foreground'
-                    : 'bg-other-message text-foreground'
-                  } ${message.status === 'sending' ? 'opacity-70' : ''} ${message.status === 'error' ? 'border border-destructive' : ''}`}
+                key={message.id}
+                className={`flex gap-3 ${isAI ? 'justify-center' : isUser ? 'justify-end' : 'justify-start'}`}
               >
-                {message.is_ai_mediator && (
-                  <p className="text-xs font-semibold mb-1 opacity-80">
-                    TheFiveElders
-                  </p>
+                {/* Avatar for Other Users */}
+                {!isUser && !isAI && (
+                  <Avatar className="h-8 w-8 mt-1 border border-border">
+                    <AvatarImage src={sender?.avatar_url || undefined} />
+                    <AvatarFallback className="bg-muted text-[10px] text-muted-foreground">
+                      {getInitials(senderName)}
+                    </AvatarFallback>
+                  </Avatar>
                 )}
-                {message.is_ai_mediator ? (
-                  <AIMediatorMessage content={message.content} />
-                ) : (
-                  <p className="text-sm leading-relaxed">{message.content}</p>
-                )}
-                {message.status === 'sending' && (
-                  <span className="text-[10px] opacity-70 flex items-center gap-1 mt-1 justify-end">
-                    <Loader2 className="w-3 h-3 animate-spin" /> Sending...
-                  </span>
-                )}
-                {message.status === 'error' && (
-                  <span className="text-[10px] text-destructive-foreground flex items-center gap-1 mt-1 justify-end">
-                    Failed to send
-                  </span>
+
+                <div
+                  className={`max-w-[75%] rounded-2xl px-5 py-3.5 shadow-sm ${isAI
+                      ? 'bg-ai-mediator text-ai-mediator-foreground w-full max-w-[90%]'
+                      : isUser
+                        ? 'bg-user-message text-primary-foreground rounded-tr-sm'
+                        : 'bg-other-message text-foreground rounded-tl-sm'
+                    } ${message.status === 'sending' ? 'opacity-70' : ''} ${message.status === 'error' ? 'border border-destructive' : ''}`}
+                >
+                  {isAI && (
+                    <p className="text-xs font-bold mb-2 opacity-90 uppercase tracking-wide">
+                      TheFiveElders
+                    </p>
+                  )}
+
+                  {isAI ? (
+                    <AIMediatorMessage content={message.content} />
+                  ) : (
+                    <div className="flex flex-col">
+                      {!isUser && (
+                        <span className="text-[10px] font-medium opacity-50 mb-1">
+                          {senderName}
+                        </span>
+                      )}
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                    </div>
+                  )}
+
+                  {message.status === 'sending' && (
+                    <span className="text-[10px] opacity-70 flex items-center gap-1 mt-1 justify-end">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Sending...
+                    </span>
+                  )}
+                  {message.status === 'error' && (
+                    <span className="text-[10px] text-destructive-foreground flex items-center gap-1 mt-1 justify-end">
+                      Failed to send
+                    </span>
+                  )}
+                </div>
+
+                {/* Avatar for Current User */}
+                {isUser && (
+                  <Avatar className="h-8 w-8 mt-1 border border-border">
+                    <AvatarImage src={user?.user_metadata?.avatar_url} />
+                    <AvatarFallback className="bg-primary/20 text-primary text-[10px]">
+                      {user?.email ? getInitials(user.email) : "ME"}
+                    </AvatarFallback>
+                  </Avatar>
                 )}
               </div>
-            </div>
-          ))}
+            );
+          })}
           <div ref={messagesEndRef} />
         </div>
       </div>
 
       <div className="border-t border-border bg-card px-4 py-4">
-        <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex gap-2">
+        <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex gap-3">
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 bg-input border-border focus:border-primary"
+            className="flex-1 bg-input border-border focus:border-primary h-11"
           />
-          <Button type="submit" disabled={!newMessage.trim()} size="icon" className="bg-primary hover:bg-primary/90">
-            <Send className="w-4 h-4" />
+          <Button type="submit" disabled={!newMessage.trim()} size="icon" className="bg-primary hover:bg-primary/90 h-11 w-11 rounded-xl">
+            <Send className="w-5 h-5" />
           </Button>
         </form>
       </div>
