@@ -181,8 +181,15 @@ Deno.serve(async (req) => {
       labeledLines.push(`${speakerName}: ${decryptedContent}`);
     }
 
-    // Add the new message
-    labeledLines.push(`${userName}: ${decryptedUserMessage}`);
+    // Add the new message ONLY if it's not already the last message (deduplication)
+    const newMessageLine = `${userName}: ${decryptedUserMessage}`;
+    const lastLine = labeledLines.length > 0 ? labeledLines[labeledLines.length - 1] : null;
+
+    if (lastLine !== newMessageLine) {
+      labeledLines.push(newMessageLine);
+    } else {
+      console.log('[mediate] Duplicate message detected in DB history, skipping append.');
+    }
 
     // Build the structured conversation for the prompt (oldest->newest)
     const conversationText = labeledLines.join('\n');
