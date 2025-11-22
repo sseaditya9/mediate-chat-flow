@@ -5,7 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Auth from "./pages/Auth";
 import Account from "./pages/Account";
-import { GlobalControls } from "@/components/layout/GlobalControls";
+import About from "./pages/About";
+import { Header } from "@/components/layout/Header";
 import { ThemeProvider } from "@/components/theme-provider";
 import Dashboard from "./pages/Dashboard";
 import ChatRoom from "./pages/ChatRoom";
@@ -19,12 +20,13 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <GlobalControls />
+          <Header />
           <Routes>
             <Route path="/" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/chat/:conversationId" element={<ChatRoom />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

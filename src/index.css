@@ -55,50 +55,49 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Warm Fireplace Theme - Dark Mode */
-    --background: 30 15% 5%;
-    /* Deep warm black */
-    /* Deep warm brown/charcoal */
-    --foreground: 35 30% 90%;
-    /* Soft cream - High Contrast */
+    /* Bold Warm Dark Theme */
+    --background: 240 10% 4%;
+    /* Deepest charcoal, almost black */
+    --foreground: 30 20% 90%;
+    /* Warm white */
 
-    --card: 20 25% 16%;
-    /* Slightly lighter brown */
-    --card-foreground: 35 30% 90%;
+    --card: 240 10% 10%;
+    /* Dark charcoal card */
+    --card-foreground: 30 20% 90%;
 
-    --popover: 20 25% 16%;
-    --popover-foreground: 35 30% 90%;
+    --popover: 240 10% 10%;
+    --popover-foreground: 30 20% 90%;
 
-    /* Lighter Terracotta for Dark Mode */
-    --primary: 25 60% 60%;
-    --primary-foreground: 35 30% 90%;
+    /* Bold Warm Accents */
+    --primary: 15 80% 55%;
+    /* Vibrant Rust/Orange */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 25 20% 25%;
-    /* Darker brown */
-    --secondary-foreground: 35 30% 90%;
+    --secondary: 240 10% 15%;
+    /* Lighter charcoal */
+    --secondary-foreground: 30 20% 90%;
 
-    --muted: 25 20% 25%;
-    --muted-foreground: 30 15% 70%;
-    /* Lighter grey-brown for readability */
+    --muted: 240 10% 15%;
+    --muted-foreground: 240 5% 65%;
 
-    --accent: 25 20% 25%;
-    --accent-foreground: 35 30% 90%;
+    --accent: 15 80% 55%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 60% 40%;
-    --destructive-foreground: 35 30% 90%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 25 20% 25%;
-    --input: 25 20% 25%;
-    --ring: 25 60% 60%;
+    --border: 240 10% 15%;
+    --input: 240 10% 15%;
+    --ring: 15 80% 55%;
 
-    /* AI Mediator - Dark Warm Sage */
-    --ai-mediator: 140 15% 20%;
-    --ai-mediator-foreground: 140 20% 85%;
+    /* AI Mediator - Deep Teal/Slate */
+    --ai-mediator: 180 30% 15%;
+    --ai-mediator-foreground: 180 20% 90%;
 
     /* Message Bubbles */
-    --user-message: 25 50% 35%;
-    /* Darker Terracotta */
-    --other-message: 25 20% 20%;
+    --user-message: 15 70% 45%;
+    /* Darker Rust */
+    --other-message: 240 10% 12%;
   }
 }
 
