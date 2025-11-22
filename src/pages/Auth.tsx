@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useTheme } from "@/components/theme-provider";
 
+import { CampfireAnimation } from "@/components/landing/CampfireAnimation";
+import { RiverAnimation } from "@/components/landing/RiverAnimation";
+
 const Auth = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -51,34 +54,13 @@ const Auth = () => {
     }
   };
 
-  // Determine which image to show based on theme
-  // Note: In a real app, we'd import these. For now, using the paths provided by the tool.
-  // Since I can't import from the artifacts folder directly in the code without moving them,
-  // I will assume they are moved to public/assets or similar.
-  // WAIT: I cannot move files to public easily. I will use the absolute paths for now if running locally,
-  // but for a web app, they need to be served.
-  // Strategy: I will use a placeholder URL or base64 if I could, but for this environment,
-  // I will assume the user will move them.
-  // ACTUALLY: I should probably just use the file paths I got, but they are absolute paths on the server.
-  // I will use a relative path assuming they are in `public`.
-  // I will ask the user to move them or I will just use the absolute path for the `src` which might work in Electron/local dev,
-  // but for a web app it won't.
-  // Let's try to use a "cool" CSS gradient fallback if images fail, or just style it heavily with CSS.
-  // But the user explicitly asked for these graphics.
-  // I will use the absolute paths for now as I am in a local environment.
-
-  const dayImage = "/landing-day.png";
-  const nightImage = "/landing-night.png";
-
-  const currentImage = theme === 'dark' ? nightImage : dayImage;
-
   if (!mounted) return null;
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background transition-colors duration-500">
       {/* Left Side - Content */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center p-8 md:p-16 lg:p-24 relative overflow-hidden">
-        <div className="z-10 space-y-8">
+      <div className="w-full md:w-1/2 flex flex-col justify-center p-8 md:p-16 lg:p-24 relative overflow-hidden z-10">
+        <div className="space-y-8">
           <div className="space-y-2">
             <h2 className="text-sm font-bold tracking-widest text-primary uppercase">
               The Modern Digital Panchayat
@@ -115,18 +97,14 @@ const Auth = () => {
         </div>
 
         {/* Background decoration */}
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 to-transparent pointer-events-none -z-10" />
       </div>
 
       {/* Right Side - Visual */}
-      <div className="w-full md:w-1/2 relative bg-muted overflow-hidden min-h-[400px] md:min-h-screen">
-        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent z-10 md:hidden" />
-        <img
-          src={currentImage}
-          alt="Atmospheric Scene"
-          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out"
-        />
-        <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
+      <div className="w-full md:w-1/2 relative overflow-hidden min-h-[400px] md:min-h-screen">
+        <div className="absolute inset-0 w-full h-full">
+          {theme === 'dark' ? <CampfireAnimation /> : <RiverAnimation />}
+        </div>
 
         {/* Floating Quote */}
         <div className="absolute bottom-12 left-12 right-12 z-20 hidden md:block">
