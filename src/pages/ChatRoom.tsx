@@ -11,15 +11,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { User, RealtimeChannel } from "@supabase/supabase-js";
 import AES from 'crypto-js/aes';
 import encUtf8 from 'crypto-js/enc-utf8';
+import { channel } from "diagnostics_channel";
 
 interface Message {
-  id: number;
+  id: string | number;
   content: string;
   sender_id: string | null;
+  conversation_id: string; // Added for client-side filtering
   is_ai_mediator: boolean;
   created_at: string;
   status?: 'sending' | 'sent' | 'error';
 }
+
+
 
 interface Participant {
   user_id: string;
@@ -167,7 +171,7 @@ const ChatRoom = () => {
       console.error('Error fetching messages:', error);
       toast.error('Failed to load messages');
     } else {
-      setMessages(data || []);
+      setMessages((data as any) || []);
     }
   };
 
@@ -239,20 +243,24 @@ const ChatRoom = () => {
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to ALL events (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
-          table: 'messages',
-          filter: `conversation_id=eq.${conversationId}`
+          table: 'messages'
+          // Removed filter to debug if events are being sent at all. 
+          // We will filter client-side.
         },
         (payload) => {
           if (payload.eventType === 'INSERT') {
             const newMessage = payload.new as Message;
-            setMessages(prev => {
-              if (prev.some(msg => msg.id === newMessage.id)) {
-                return prev;
-              }
-              return [...prev, newMessage];
-            });
+            // Client-side filter
+            if (newMessage.conversation_id === conversationId) {
+              setMessages(prev => {
+                if (prev.some(msg => msg.id === newMessage.id)) {
+                  return prev;
+                }
+                return [...prev, newMessage];
+              });
+            }
           }
         }
       )
@@ -346,13 +354,9 @@ const ChatRoom = () => {
 
     const optimisticMessage: Message = {
       id: tempId,
-      content: contentToSend, // Store encrypted in state? No, we want to show decrypted.
-      // Actually, for optimistic UI we should show the plain text.
-      // But the message object in state usually mirrors DB.
-      // Let's store the ENCRYPTED content in the message object, 
-      // and let the render logic decrypt it.
-      // Wait, if we store encrypted, we need to make sure render logic works.
+      content: contentToSend,
       sender_id: user.id,
+      conversation_id: conversationId,
       is_ai_mediator: false,
       created_at: new Date().toISOString(),
       status: 'sending'
@@ -376,7 +380,7 @@ const ChatRoom = () => {
       if (insertError) throw insertError;
 
       setMessages(prev => prev.map(msg =>
-        msg.id === tempId ? { ...data, status: 'sent' } : msg
+        msg.id === tempId ? { ...(data as any), status: 'sent' } : msg
       ));
 
       const currentParticipant = participants.find(p => p.user_id === user.id);
