@@ -57,16 +57,14 @@ const ChatRoom = () => {
   useEffect(() => {
     const lastAiMessage = [...messages].reverse().find(m => m.is_ai_mediator);
     if (lastAiMessage) {
-      // Expected format: "Win-O-Meter says: Name1 70% / Name2 30%"
-      // Flexible regex to capture names and percentages
-      const regex = /Win-O-Meter says:\s*(.+?)\s+(\d+)%\s*\/\s*(.+?)\s+(\d+)%/i;
-      const match = lastAiMessage.content.match(regex);
-
-      if (match) {
-        setWinOMeter({
-          left: { name: match[1].trim(), score: parseInt(match[2]) },
-          right: { name: match[3].trim(), score: parseInt(match[4]) }
-        });
+      try {
+        const parsed = JSON.parse(lastAiMessage.content);
+        if (parsed.win_meter) {
+          setWinOMeter(parsed.win_meter);
+        }
+      } catch (e) {
+        // Fallback or ignore if not valid JSON
+        console.log("Could not parse AI message for Win-O-Meter", e);
       }
     }
   }, [messages]);
@@ -246,7 +244,11 @@ const ChatRoom = () => {
         body: {
           conversationId: conversationId,
           userMessage: messageText,
-          userName: userName
+          userName: userName,
+          participants: participants.map(p => ({
+            ...p,
+            display_name: getParticipantName(p) // Ensure we pass the resolved name
+          }))
         }
       }).then(({ error }) => {
         if (error) {
@@ -298,10 +300,10 @@ const ChatRoom = () => {
 
                 <div
                   className={`max-w-[75%] rounded-2xl px-5 py-3.5 shadow-sm ${isAI
-                      ? 'bg-ai-mediator text-ai-mediator-foreground w-full max-w-[90%]'
-                      : isUser
-                        ? 'bg-user-message text-primary-foreground rounded-tr-sm'
-                        : 'bg-other-message text-foreground rounded-tl-sm'
+                    ? 'bg-ai-mediator text-ai-mediator-foreground w-full max-w-[90%]'
+                    : isUser
+                      ? 'bg-user-message text-primary-foreground rounded-tr-sm'
+                      : 'bg-other-message text-foreground rounded-tl-sm'
                     } ${message.status === 'sending' ? 'opacity-70' : ''} ${message.status === 'error' ? 'border border-destructive' : ''}`}
                 >
                   {isAI && (

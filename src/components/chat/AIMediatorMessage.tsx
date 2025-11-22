@@ -65,33 +65,7 @@ const AIMediatorMessage: React.FC<AIMediatorMessageProps> = ({ content }) => {
                 </div>
             </div>
 
-            {/* Win-O-Meter (Only show if values are present and not 0/0 or default 50/50 if type is ack/ask sometimes we might want to hide it, but user asked for it preferably at top) */}
-            {win_meter && (
-                <div className="bg-black/5 rounded-lg p-3 space-y-2">
-                    <div className="flex items-center justify-between text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        <span>Win-O-Meter</span>
-                        <Scale className="w-3 h-3" />
-                    </div>
-                    <div className="relative h-4 bg-gray-200 rounded-full overflow-hidden flex">
-                        <div
-                            className="h-full bg-blue-400 transition-all duration-500 flex items-center justify-start px-2 text-[10px] font-bold text-white"
-                            style={{ width: `${win_meter.partyA}%` }}
-                        >
-                            {win_meter.partyA > 15 && `A: ${win_meter.partyA}%`}
-                        </div>
-                        <div
-                            className="h-full bg-red-400 transition-all duration-500 flex items-center justify-end px-2 text-[10px] font-bold text-white"
-                            style={{ width: `${win_meter.partyB}%` }}
-                        >
-                            {win_meter.partyB > 15 && `B: ${win_meter.partyB}%`}
-                        </div>
-                    </div>
-                    <div className="flex justify-between text-[10px] text-muted-foreground font-mono">
-                        <span>Party A</span>
-                        <span>Party B</span>
-                    </div>
-                </div>
-            )}
+            {/* Win-O-Meter REMOVED (Moved to Header) */}
 
             {/* Main Text */}
             <div className="text-sm leading-relaxed font-medium">
@@ -106,10 +80,9 @@ const AIMediatorMessage: React.FC<AIMediatorMessageProps> = ({ content }) => {
                         {actions.map((action, idx) => (
                             <div key={idx} className="flex items-start gap-2 bg-white/50 p-2 rounded border border-black/5">
                                 <div className={`
-                  shrink-0 w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-white
-                  ${action.who === 'A' ? 'bg-blue-500' : action.who === 'B' ? 'bg-red-500' : 'bg-purple-500'}
+                  shrink-0 h-5 px-1.5 rounded flex items-center justify-center text-[10px] font-bold text-white bg-primary
                 `}>
-                                    {action.who === 'both' ? 'AB' : action.who}
+                                    {action.who}
                                 </div>
                                 <span className="text-sm">{action.action}</span>
                             </div>

@@ -14,43 +14,45 @@ STRICT OUTPUT: Always output EXACTLY one JSON object (nothing else) with the fol
 {
   "type": "ack" | "ask" | "judgement",
   "text": "<short natural-language reply, <=120 words>",
-  "win_meter": { "partyA": <int 0-100>, "partyB": <int 0-100> },
-  "actions": [ { "who": "A"|"B"|"both", "action": "<short instruction>" } ],
+  "win_meter": { 
+    "left": { "name": "<Name1>", "score": <int 0-100> }, 
+    "right": { "name": "<Name2>", "score": <int 0-100> } 
+  },
+  "actions": [ { "who": "<Name>", "action": "<short instruction>" } ],
   "clarify": "<optional short question if type=='ask'>"
 }
 
 Rules:
-1) If only one side has spoken about the current issue, return type='ack' (acknowledge + brief tease). Do NOT judge.
-2) Only ask ONE clarifying question per issue when essential info is missing: type='ask' and include 'clarify'.
-3) When both sides have replied about the same issue and no critical facts are missing, return type='judgement', include a short ruling in 'text', a win_meter, and up to 2 actions.
-4) Keep 'text' short, natural, slightly sassy but never insulting.
-5) Win meter: use 50/50 for equal, 60/40 or 70/30 for mild advantage, 80/20 or 90/10 for clear fault.
+1) USE REAL NAMES. Never use "A" or "B" in the text or actions. Use the names provided in the context.
+2) If only one side has spoken about the current issue, return type='ack' (acknowledge + brief tease). Do NOT judge.
+3) Only ask ONE clarifying question per issue when essential info is missing: type='ask' and include 'clarify'.
+4) When both sides have replied about the same issue and no critical facts are missing, return type='judgement', include a short ruling in 'text', a win_meter, and up to 2 actions.
+5) Win meter: use 50/50 for equal, 60/40 or 70/30 for mild advantage, 80/20 or 90/10 for clear fault. Ensure 'left' and 'right' correspond to the two main participants.
 6) Do not output any prose outside the JSON object. If you cannot answer, still return a JSON with type='ask' and a clarifying question.
 
 Example (two-turn flow):
 Input conversation:
-A (Priyuu): "He ate my snacks."
-B (Aditya): "I only ate one pack."
+Priyuu: "He ate my snacks."
+Aditya: "I only ate one pack."
 Assistant output:
 {
  "type":"ack",
  "text":"I hear both — quick detail: which snack was it? this matters.",
- "win_meter":{"partyA":60,"partyB":40},
+ "win_meter":{ "left": { "name": "Priyuu", "score": 60 }, "right": { "name": "Aditya", "score": 40 } },
  "actions":[],
  "clarify":"Which snack was it?"
 }
-(After the clarify is answered, assistant can return a judgement.)
 `;
 
 const FEW_SHOT = `
 Example 1:
-A: "You keep using my charger without asking."
-B: "It was one time, chill."
+Priyuu: "You keep using my charger without asking."
+Aditya: "It was one time, chill."
 Assistant (ack):
 {
  "type":"ack",
  "text":"Noted. Quick detail before I judge: which charger and how many times?",
- "win_meter":{"partyA":60,"partyB":40},
+ "win_meter":{ "left": { "name": "Priyuu", "score": 60 }, "right": { "name": "Aditya", "score": 40 } },
  "actions":[],
  "clarify":"How many times has this happened?"
 }
@@ -72,7 +74,8 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { conversationId, userMessage, userName = 'User' } = body;
+    const { conversationId, userMessage, userName = 'User', participants = [] } = body;
+
     if (!conversationId || !userMessage) {
       return new Response(JSON.stringify({ error: 'conversationId and userMessage required' }), {
         status: 400,
@@ -103,27 +106,37 @@ Deno.serve(async (req) => {
     // Build ordered oldest->newest list
     const messages = (messagesRaw || []).slice().reverse();
 
-    // Determine party labels (partyA, partyB) from unique non-AI senders in history + current sender
-    const humanNames: string[] = [];
-    for (const m of messages) {
-      if (!m.is_ai_mediator) {
-        const sender = m.sender;
-        let name = 'User';
-        if (sender) {
-          name = (sender.display_name && sender.display_name.trim())
-            ? sender.display_name
-            : (sender.full_name || 'User');
+    // Determine participants names
+    // If participants array is passed from frontend, use it. Otherwise infer.
+    let partyNames: string[] = [];
+    if (participants && participants.length > 0) {
+      partyNames = participants.map((p: any) =>
+        (p.display_name && p.display_name.trim()) ? p.display_name : (p.full_name || p.email || 'User')
+      );
+    } else {
+      // Fallback inference
+      const humanNames: string[] = [];
+      for (const m of messages) {
+        if (!m.is_ai_mediator) {
+          const sender = m.sender;
+          let name = 'User';
+          if (sender) {
+            name = (sender.display_name && sender.display_name.trim())
+              ? sender.display_name
+              : (sender.full_name || 'User');
+          }
+          if (!humanNames.includes(name)) humanNames.push(name);
         }
-        if (!humanNames.includes(name)) humanNames.push(name);
-        if (humanNames.length >= 2) break;
       }
+      if (!humanNames.includes(userName)) humanNames.push(userName);
+      partyNames = Array.from(new Set(humanNames));
     }
-    // ensure the current userName is included
-    if (!humanNames.includes(userName)) humanNames.unshift(userName);
-    // keep only up to 2 unique human names
-    const [partyAName = 'A', partyBName = 'B'] = Array.from(new Set(humanNames)).slice(0, 2);
 
-    // Map message list to labeled A/B lines; include AI lines as "TheFiveElders"
+    // Ensure we have at least 2 names for the Win-O-Meter structure if possible, or placeholders
+    const name1 = partyNames[0] || 'Party A';
+    const name2 = partyNames[1] || 'Party B';
+
+    // Map message list to labeled lines using REAL NAMES
     const labeledLines = [];
     for (const m of messages) {
       let speakerName = 'User';
@@ -134,52 +147,26 @@ Deno.serve(async (req) => {
           ? m.sender.display_name
           : (m.sender.full_name || 'User');
       }
-
-      let label;
-      if (speakerName === 'TheFiveElders') {
-        label = 'AI';
-      } else if (speakerName === partyAName) {
-        label = 'A';
-      } else if (speakerName === partyBName) {
-        label = 'B';
-      } else {
-        // if some third person appears, fold into B if B is empty, otherwise mark as B
-        label = 'B';
-      }
-      labeledLines.push(`${label} (${speakerName}): ${m.content}`);
+      labeledLines.push(`${speakerName}: ${m.content}`);
     }
 
-    // Add the new message as the last turn (sender = userName)
-    let lastSenderLabel = (userName === partyAName) ? 'A' : 'B';
-    // If userName isn't equal to either, force into B
-    if (![partyAName, partyBName].includes(userName)) {
-      lastSenderLabel = 'B';
-    }
-    labeledLines.push(`${lastSenderLabel} (${userName}): ${userMessage}`);
-
-    // Heuristic: have both sides spoken about the same issue?
-    // Simple heuristic: find last two non-AI labeled lines with different labels.
-    const nonAiLines = labeledLines.filter(l => !l.startsWith('AI ('));
-    const lastTwoHuman = nonAiLines.slice(-2);
-    const bothSidesSpoken = lastTwoHuman.length === 2 && lastTwoHuman[0].startsWith('A') && lastTwoHuman[1].startsWith('B') ||
-      lastTwoHuman.length === 2 && lastTwoHuman[0].startsWith('B') && lastTwoHuman[1].startsWith('A');
+    // Add the new message
+    labeledLines.push(`${userName}: ${userMessage}`);
 
     // Build the structured conversation for the prompt (oldest->newest)
     const conversationText = labeledLines.join('\n');
 
     // Build the meta user content for model
     const userMeta = `
-partyA_label: ${partyAName}
-partyB_label: ${partyBName}
-last_sender_label: ${lastSenderLabel}
-last_sender_name: ${userName}
-both_sides_spoken: ${bothSidesSpoken}
-new_message: "${userMessage}"
+Participants: ${partyNames.join(', ')}
+Last Sender: ${userName}
+New Message: "${userMessage}"
 
 Conversation (oldest->newest):
 ${conversationText}
 
 Return exactly one JSON object matching the schema in the system prompt.
+Ensure 'win_meter' uses the names "${name1}" and "${name2}" for left/right keys.
 `;
 
     // Prepare the messages for OpenAI
@@ -241,7 +228,10 @@ Return exactly one JSON object matching the schema in the system prompt.
       finalResponseObj = {
         type: 'ask',
         text: "I need one quick detail before I judge: what's the specific action bothering you right now?",
-        win_meter: { partyA: 50, partyB: 50 },
+        win_meter: {
+          left: { name: name1, score: 50 },
+          right: { name: name2, score: 50 }
+        },
         actions: [],
         clarify: "What's the single action that's bothering you?"
       };
