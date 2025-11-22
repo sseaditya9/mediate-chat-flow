@@ -32,9 +32,15 @@ export function UserNav() {
         return () => subscription.unsubscribe();
     }, []);
 
-    const handleLogout = async () => {
-        await supabase.auth.signOut();
-        navigate("/");
+    const handleLogout = async (event: Event) => {
+        event.preventDefault(); // Prevent menu from closing immediately if needed, though usually fine.
+        try {
+            await supabase.auth.signOut();
+        } catch (error) {
+            console.error("Error signing out:", error);
+        } finally {
+            navigate("/");
+        }
     };
 
     const getInitials = (name: string) => {
@@ -72,7 +78,7 @@ export function UserNav() {
                     <UserIcon className="mr-2 h-4 w-4" />
                     <span>Account</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>
+                <DropdownMenuItem onSelect={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                 </DropdownMenuItem>
