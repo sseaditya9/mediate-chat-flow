@@ -33,9 +33,6 @@ const Dashboard = () => {
       <div className="w-full max-w-4xl space-y-8">
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-serif text-foreground tracking-tight">Your Conversations</h1>
-          <p className="text-muted-foreground">
-            Continue where you left off
-          </p>
         </div>
 
         <div className="bg-card/50 dark:bg-ai-mediator/10 backdrop-blur-sm rounded-2xl p-6 border border-border/50 shadow-sm transition-colors duration-500">

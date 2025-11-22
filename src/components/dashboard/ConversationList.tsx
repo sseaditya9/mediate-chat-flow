@@ -171,7 +171,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
     return (
       <Card className="border-accent/20">
         <CardContent className="py-8">
-          <div className="text-center text-muted-foreground">Loading TheFiveElderss...</div>
+          <div className="text-center text-muted-foreground">Loading sessions...</div>
         </CardContent>
       </Card>
     );
@@ -182,7 +182,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-foreground">
           <MessageSquare className="w-5 h-5 text-foreground" />
-          Your TheFiveElderss
+          Your sessions
         </CardTitle>
         <CardDescription>
           {conversations.length} active TheFiveElders{conversations.length !== 1 ? 's' : ''}
@@ -191,7 +191,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
       <CardContent>
         {conversations.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            No TheFiveElderss yet. Create or join one to get started!
+            No sessions yet. Create or join one to get started!
           </div>
         ) : (
           <>
