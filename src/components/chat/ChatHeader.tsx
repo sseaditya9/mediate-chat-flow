@@ -1,6 +1,8 @@
-import { ArrowLeft, Users } from "lucide-react";
+import React from 'react';
 import { Button } from "@/components/ui/button";
+import { ArrowLeft, Users, RefreshCw } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User } from '@supabase/supabase-js';
 
 interface Participant {
     user_id: string;
@@ -17,14 +19,19 @@ interface WinOMeterData {
 
 interface ChatHeaderProps {
     title: string;
-    participants: Participant[];
+    participants: any[];
     onBack: () => void;
-    winOMeter: WinOMeterData | null;
-    currentUser: { id: string; display_name?: string | null; full_name?: string | null; email?: string } | null;
-    inviteCode: string;
+    winOMeter?: {
+        left: { name: string; score: number };
+        right: { name: string; score: number };
+    } | null;
+    currentUser: any;
+    inviteCode?: string;
+    isConnected?: boolean;
+    onRefresh?: () => void;
 }
 
-const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, inviteCode }: ChatHeaderProps) => {
+const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, inviteCode, isConnected, onRefresh }: ChatHeaderProps) => {
     const getInitials = (name: string) => {
         return name
             .split(" ")
@@ -114,6 +121,11 @@ const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, invit
                                     #{inviteCode}
                                 </span>
                             )}
+                            {/* Connection Status Indicator */}
+                            <div
+                                className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}
+                                title={isConnected ? "Connected" : "Disconnected"}
+                            />
                         </div>
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <Users className="w-3 h-3" />
@@ -122,21 +134,33 @@ const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, invit
                     </div>
                 </div>
 
-                {/* Participants Avatars (Right side) */}
-                <div className="flex -space-x-2 overflow-hidden">
-                    {participants.slice(0, 4).map((p) => (
-                        <Avatar key={p.user_id} className="inline-block h-8 w-8 border-2 border-background ring-1 ring-border">
-                            <AvatarImage src={p.avatar_url || undefined} />
-                            <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
-                                {getInitials(getDisplayName(p))}
-                            </AvatarFallback>
-                        </Avatar>
-                    ))}
-                    {participants.length > 4 && (
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-muted text-[10px] font-medium text-muted-foreground">
-                            +{participants.length - 4}
-                        </div>
-                    )}
+                {/* Right Side: Participants & Refresh */}
+                <div className="flex items-center gap-2">
+                    <Button
+                        onClick={onRefresh}
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-muted text-muted-foreground"
+                        title="Refresh Chat"
+                    >
+                        <RefreshCw className="w-4 h-4" />
+                    </Button>
+
+                    <div className="flex -space-x-2 overflow-hidden">
+                        {participants.slice(0, 4).map((p) => (
+                            <Avatar key={p.user_id} className="inline-block h-8 w-8 border-2 border-background ring-1 ring-border">
+                                <AvatarImage src={p.avatar_url || undefined} />
+                                <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
+                                    {getInitials(getDisplayName(p))}
+                                </AvatarFallback>
+                            </Avatar>
+                        ))}
+                        {participants.length > 4 && (
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-muted text-[10px] font-medium text-muted-foreground">
+                                +{participants.length - 4}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 

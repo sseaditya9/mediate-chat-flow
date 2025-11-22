@@ -48,6 +48,8 @@ const ChatRoom = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
 
+  const [isConnected, setIsConnected] = useState(false);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -153,104 +155,117 @@ const ChatRoom = () => {
     setupEncryption();
   }, [conversationId, user]);
 
+  const fetchMessages = async () => {
+    if (!conversationId) return;
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('conversation_id', conversationId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching messages:', error);
+      toast.error('Failed to load messages');
+    } else {
+      setMessages(data || []);
+    }
+  };
+
+  const fetchConversation = async () => {
+    if (!conversationId) return;
+    const { data, error } = await supabase
+      .from('conversations')
+      .select('invite_code, title')
+      .eq('id', conversationId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching conversation:', error);
+    } else {
+      setInviteCode(data?.invite_code || '');
+      setConversationTitle(data?.title || 'Conversation');
+    }
+  };
+
+  const fetchParticipants = async () => {
+    if (!conversationId) return;
+    const { data: rpcData, error } = await supabase
+      .rpc('get_conversation_participants', { conversation_uuid: conversationId });
+
+    if (error) {
+      console.error('Error fetching participants:', error);
+    } else {
+      console.log('Participants data from RPC:', rpcData);
+
+      // Fetch profiles directly for all participants to ensure fresh data
+      const userIds = (rpcData || []).map((p: any) => p.user_id);
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, display_name, full_name, avatar_url')
+        .in('id', userIds);
+
+      const formattedParticipants = (rpcData || []).map((p: any) => {
+        const profile = profilesData?.find(prof => prof.id === p.user_id);
+        return {
+          user_id: p.user_id,
+          full_name: profile?.full_name || p.full_name,
+          display_name: profile?.display_name || p.display_name,
+          avatar_url: profile?.avatar_url || p.avatar_url,
+          email: p.email
+        };
+      });
+      setParticipants(formattedParticipants);
+    }
+  };
+
+  const handleManualRefresh = () => {
+    fetchMessages();
+    fetchParticipants();
+    toast.success("Refreshed chat");
+  };
+
   useEffect(() => {
     if (!conversationId || !user) return;
-
-    const fetchMessages = async () => {
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
-
-      if (error) {
-        console.error('Error fetching messages:', error);
-        toast.error('Failed to load messages');
-      } else {
-        setMessages(data || []);
-      }
-    };
-
-    const fetchConversation = async () => {
-      const { data, error } = await supabase
-        .from('conversations')
-        .select('invite_code, title')
-        .eq('id', conversationId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching conversation:', error);
-      } else {
-        setInviteCode(data?.invite_code || '');
-        setConversationTitle(data?.title || 'Conversation');
-      }
-    };
-
-    const fetchParticipants = async () => {
-      const { data: rpcData, error } = await supabase
-        .rpc('get_conversation_participants', { conversation_uuid: conversationId });
-
-      if (error) {
-        console.error('Error fetching participants:', error);
-      } else {
-        console.log('Participants data from RPC:', rpcData);
-
-        // Fetch profiles directly for all participants to ensure fresh data
-        const userIds = (rpcData || []).map((p: any) => p.user_id);
-        const { data: profilesData } = await supabase
-          .from('profiles')
-          .select('id, display_name, full_name, avatar_url')
-          .in('id', userIds);
-
-        const formattedParticipants = (rpcData || []).map((p: any) => {
-          const profile = profilesData?.find(prof => prof.id === p.user_id);
-          return {
-            user_id: p.user_id,
-            full_name: profile?.full_name || p.full_name,
-            display_name: profile?.display_name || p.display_name,
-            avatar_url: profile?.avatar_url || p.avatar_url,
-            email: p.email
-          };
-        });
-        setParticipants(formattedParticipants);
-      }
-    };
 
     fetchMessages();
     fetchConversation();
     fetchParticipants();
 
-    const channel = supabase
-      .channel(`conversation:${conversationId}`)
+    // Use a random suffix to ensure unique channel per mount
+    const channelId = `conversation:${conversationId}:${Math.random().toString(36).slice(2)}`;
+    const channel = supabase.channel(channelId);
+
+    channel
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*', // Listen to ALL events (INSERT, UPDATE, DELETE)
           schema: 'public',
           table: 'messages',
           filter: `conversation_id=eq.${conversationId}`
         },
         (payload) => {
-          const newMessage = payload.new as Message;
-          setMessages(prev => {
-            if (prev.some(msg => msg.id === newMessage.id)) {
-              return prev;
-            }
-            return [...prev, newMessage];
-          });
+          if (payload.eventType === 'INSERT') {
+            const newMessage = payload.new as Message;
+            setMessages(prev => {
+              if (prev.some(msg => msg.id === newMessage.id)) {
+                return prev;
+              }
+              return [...prev, newMessage];
+            });
+          }
         }
       )
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*', // Listen to ALL events
           schema: 'public',
           table: 'conversation_participants',
           filter: `conversation_id=eq.${conversationId}`
         },
         () => {
-          console.log('New participant joined! Refreshing list in 1s...');
-          // Add a small delay to ensure profile data is propagated/available
+          console.log('Participant change detected! Refreshing...');
           setTimeout(fetchParticipants, 1000);
         }
       )
@@ -262,14 +277,10 @@ const ChatRoom = () => {
           table: 'profiles'
         },
         (payload) => {
-          // Check if the updated profile belongs to one of our participants
           const updatedProfileId = payload.new.id;
           setParticipants(prev => {
-            const isParticipant = prev.some(p => p.user_id === updatedProfileId);
-            if (isParticipant) {
-              console.log('Participant profile updated! Refreshing list...');
+            if (prev.some(p => p.user_id === updatedProfileId)) {
               fetchParticipants();
-              return prev; // fetchParticipants will update state
             }
             return prev;
           });
@@ -278,10 +289,13 @@ const ChatRoom = () => {
       .subscribe((status) => {
         console.log(`[Realtime] Channel status: ${status}`);
         if (status === 'SUBSCRIBED') {
-          console.log('[Realtime] Successfully subscribed to conversation updates');
-        }
-        if (status === 'CHANNEL_ERROR') {
-          console.error('[Realtime] Channel error - check RLS policies or connection');
+          setIsConnected(true);
+        } else {
+          setIsConnected(false);
+          if (status === 'CHANNEL_ERROR') {
+            console.error('[Realtime] Connection error');
+            toast.error("Connection lost. Retrying...");
+          }
         }
       });
 
@@ -399,17 +413,13 @@ const ChatRoom = () => {
       <ChatHeader
         title={conversationTitle}
         participants={participants}
-        onBack={() => navigate("/dashboard")}
+        onBack={() => navigate("/")}
         winOMeter={winOMeter}
-        currentUser={user ? {
-          id: user.id,
-          display_name: user.user_metadata?.display_name,
-          full_name: user.user_metadata?.full_name,
-          email: user.email
-        } : null}
+        currentUser={user}
         inviteCode={inviteCode}
+        isConnected={isConnected}
+        onRefresh={handleManualRefresh}
       />
-
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-4xl mx-auto space-y-6">
           {messages.map((message) => {
