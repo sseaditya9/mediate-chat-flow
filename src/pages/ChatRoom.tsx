@@ -275,7 +275,15 @@ const ChatRoom = () => {
           });
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log(`[Realtime] Channel status: ${status}`);
+        if (status === 'SUBSCRIBED') {
+          console.log('[Realtime] Successfully subscribed to conversation updates');
+        }
+        if (status === 'CHANNEL_ERROR') {
+          console.error('[Realtime] Channel error - check RLS policies or connection');
+        }
+      });
 
     channelRef.current = channel;
 
