@@ -15,7 +15,7 @@ const About = () => {
                 </div>
 
                 <div className="space-y-6 text-foreground">
-                    <h1 className="text-5xl font-serif tracking-tight">About The Five Elders</h1>
+                    <h1 className="text-5xl font-serif tracking-tight">About The Elders Five</h1>
 
                     <div className="prose dark:prose-invert max-w-none space-y-4 text-lg leading-relaxed text-muted-foreground">
                         <p>
