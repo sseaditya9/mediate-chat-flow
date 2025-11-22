@@ -38,7 +38,7 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-border/50 shadow-sm">
+        <div className="bg-card/50 dark:bg-ai-mediator/10 backdrop-blur-sm rounded-2xl p-6 border border-border/50 shadow-sm transition-colors duration-500">
           {user && <ConversationList userId={user.id} />}
         </div>
       </div>
