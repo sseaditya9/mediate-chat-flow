@@ -1,6 +1,8 @@
 // mediate-message.js (Deno)
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { AES, enc } from 'https://esm.sh/crypto-js@4.2.0';
+import CryptoJS from 'https://esm.sh/crypto-js@4.2.0';
+
+const { AES, enc } = CryptoJS;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
