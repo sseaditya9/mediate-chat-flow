@@ -274,6 +274,7 @@ const ChatRoom = () => {
         onBack={() => navigate("/dashboard")}
         winOMeter={winOMeter}
         currentUser={user ? {
+          id: user.id,
           display_name: user.user_metadata?.display_name,
           full_name: user.user_metadata?.full_name,
           email: user.email

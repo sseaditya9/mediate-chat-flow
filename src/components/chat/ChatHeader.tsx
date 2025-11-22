@@ -20,7 +20,7 @@ interface ChatHeaderProps {
     participants: Participant[];
     onBack: () => void;
     winOMeter: WinOMeterData | null;
-    currentUser: { display_name?: string | null; full_name?: string | null; email?: string } | null;
+    currentUser: { id: string; display_name?: string | null; full_name?: string | null; email?: string } | null;
     inviteCode: string;
 }
 
@@ -45,32 +45,48 @@ const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, invit
     let rightSide = winOMeter?.right;
 
     if (winOMeter && winOMeter.left && winOMeter.right && currentUser) {
-        const currentName = getDisplayName(currentUser).toLowerCase().trim();
-        const leftName = winOMeter.left.name.toLowerCase().trim();
-        const rightName = winOMeter.right.name.toLowerCase().trim();
+        // Helper to find participant by name (fuzzy match)
+        const findParticipantByName = (name: string) => {
+            const cleanName = name.toLowerCase().trim();
+            return participants.find(p => {
+                const dName = (p.display_name || "").toLowerCase().trim();
+                const fName = (p.full_name || "").toLowerCase().trim();
+                return dName.includes(cleanName) || cleanName.includes(dName) ||
+                    fName.includes(cleanName) || cleanName.includes(fName);
+            });
+        };
 
-        // Check if Left matches Me
-        const leftMatchesMe = leftName.includes(currentName) || currentName.includes(leftName);
-        // Check if Right matches Me
-        const rightMatchesMe = rightName.includes(currentName) || currentName.includes(rightName);
+        const leftParticipant = findParticipantByName(winOMeter.left.name);
+        const rightParticipant = findParticipantByName(winOMeter.right.name);
 
-        if (leftMatchesMe && !rightMatchesMe) {
-            // Me is on Left, so Swap to put Me on Right
+        // Logic:
+        // 1. If Left Participant is Me -> Swap
+        // 2. If Right Participant is Me -> No Swap
+        // 3. Fallback to name matching if participant lookup fails
+
+        let shouldSwap = false;
+
+        if (leftParticipant && leftParticipant.user_id === currentUser.id) {
+            shouldSwap = true;
+        } else if (rightParticipant && rightParticipant.user_id === currentUser.id) {
+            shouldSwap = false;
+        } else {
+            // Fallback to direct name matching against current user
+            const currentName = getDisplayName(currentUser).toLowerCase().trim();
+            const leftName = winOMeter.left.name.toLowerCase().trim();
+            const rightName = winOMeter.right.name.toLowerCase().trim();
+
+            const leftMatchesMe = leftName.includes(currentName) || currentName.includes(leftName);
+            const rightMatchesMe = currentName.includes(rightName) || rightName.includes(currentName); // Added this line for completeness
+
+            if (leftMatchesMe && !rightMatchesMe) {
+                shouldSwap = true;
+            }
+        }
+
+        if (shouldSwap) {
             leftSide = winOMeter.right;
             rightSide = winOMeter.left;
-        } else if (rightMatchesMe) {
-            // Me is on Right, No Swap
-        } else {
-            // Fallback: Try to match by parts of the name (e.g. first name)
-            const currentParts = currentName.split(' ');
-            const leftParts = leftName.split(' ');
-
-            const leftPartialMatch = currentParts.some(p => leftName.includes(p)) || leftParts.some(p => currentName.includes(p));
-
-            if (leftPartialMatch) {
-                leftSide = winOMeter.right;
-                rightSide = winOMeter.left;
-            }
         }
     }
 
