@@ -1,19 +1,8 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, RefreshCw, LogOut, User as UserIcon } from "lucide-react";
+import { ArrowLeft, Users, RefreshCw } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from '@supabase/supabase-js';
-import { ModeToggle } from "@/components/mode-toggle";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 
 interface Participant {
     user_id: string;
@@ -43,13 +32,6 @@ interface ChatHeaderProps {
 }
 
 const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, inviteCode, isConnected, onRefresh }: ChatHeaderProps) => {
-    const navigate = useNavigate();
-
-    const handleLogout = async () => {
-        await supabase.auth.signOut();
-        navigate("/");
-    };
-
     const getInitials = (name: string) => {
         return name
             .split(" ")
@@ -154,10 +136,8 @@ const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, invit
 
 
 
-                {/* Right Side: Participants, Refresh, Mode Toggle, Profile */}
+                {/* Right Side: Participants, Refresh */}
                 <div className="flex items-center gap-2">
-                    <ModeToggle />
-
                     <Button
                         onClick={onRefresh}
                         variant="ghost"
@@ -183,36 +163,6 @@ const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, invit
                             </div>
                         )}
                     </div>
-
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                                <Avatar className="h-8 w-8">
-                                    <AvatarImage src={currentUser?.user_metadata?.avatar_url} alt={currentUser?.email} />
-                                    <AvatarFallback>{currentUser?.email ? getInitials(currentUser.email) : "ME"}</AvatarFallback>
-                                </Avatar>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56" align="end" forceMount>
-                            <DropdownMenuLabel className="font-normal">
-                                <div className="flex flex-col space-y-1">
-                                    <p className="text-sm font-medium leading-none">{currentUser?.user_metadata?.full_name || 'User'}</p>
-                                    <p className="text-xs leading-none text-muted-foreground">
-                                        {currentUser?.email}
-                                    </p>
-                                </div>
-                            </DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => navigate("/dashboard")}> {/* Assuming dashboard is account/home */}
-                                <UserIcon className="mr-2 h-4 w-4" />
-                                <span>Account</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={handleLogout}>
-                                <LogOut className="mr-2 h-4 w-4" />
-                                <span>Log out</span>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
                 </div>
             </div>
 
