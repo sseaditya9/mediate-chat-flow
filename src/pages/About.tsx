@@ -19,10 +19,7 @@ const About = () => {
 
                     <div className="prose dark:prose-invert max-w-none space-y-4 text-lg leading-relaxed text-muted-foreground">
                         <p>
-                            <span className="font-semibold text-foreground">The Five Elders</span> is an AI-mediated dispute resolution platform designed to bring clarity and fairness to conflicts.
-                        </p>
-                        <p>
-                            EldersFive is based on the legendary tradition of five wise elders who used to settle conflicts, big and small before anyone could storm off in a huff. They didn’t need degrees or long speeches, just authority, attitude, and a sharp sense of humor. So we stole that vibe.
+                            <span className="font-semibold text-foreground">The EldersFive</span> is based on the legendary tradition of five wise elders who used to settle conflicts, big and small before anyone could storm off in a huff. They didn’t need degrees or long speeches, just authority, attitude, and a sharp sense of humor. So we stole that vibe.
                         </p>
                         <p>
                             Two people drop their drama.
