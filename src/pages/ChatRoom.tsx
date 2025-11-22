@@ -273,6 +273,12 @@ const ChatRoom = () => {
         participants={participants}
         onBack={() => navigate("/dashboard")}
         winOMeter={winOMeter}
+        currentUser={user ? {
+          display_name: user.user_metadata?.display_name,
+          full_name: user.user_metadata?.full_name,
+          email: user.email
+        } : null}
+        inviteCode={inviteCode}
       />
 
       <div className="flex-1 overflow-y-auto px-4 py-6">
