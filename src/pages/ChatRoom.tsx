@@ -249,8 +249,30 @@ const ChatRoom = () => {
           filter: `conversation_id=eq.${conversationId}`
         },
         () => {
-          console.log('New participant joined! Refreshing list...');
-          fetchParticipants();
+          console.log('New participant joined! Refreshing list in 1s...');
+          // Add a small delay to ensure profile data is propagated/available
+          setTimeout(fetchParticipants, 1000);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles'
+        },
+        (payload) => {
+          // Check if the updated profile belongs to one of our participants
+          const updatedProfileId = payload.new.id;
+          setParticipants(prev => {
+            const isParticipant = prev.some(p => p.user_id === updatedProfileId);
+            if (isParticipant) {
+              console.log('Participant profile updated! Refreshing list...');
+              fetchParticipants();
+              return prev; // fetchParticipants will update state
+            }
+            return prev;
+          });
         }
       )
       .subscribe();
