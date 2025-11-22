@@ -1,12 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { LogOut } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
-import { AccountTab } from "@/components/dashboard/AccountTab";
 import { ChatTab } from "@/components/dashboard/ChatTab";
 
 const Dashboard = () => {
@@ -132,47 +128,26 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-6xl mx-auto space-y-6 py-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl  text-foreground font-serif">TheFiveElders</h1>
-            <p className="text-muted-foreground mt-1">
-              Let the wise decide
-            </p>
-          </div>
-          <Button onClick={handleSignOut} variant="outline" size="sm" className="border-accent/30">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
+    <div className="min-h-screen bg-background p-4 flex flex-col items-center justify-center">
+      <div className="w-full max-w-4xl space-y-8">
+        <div className="text-center space-y-2">
+          <h1 className="text-5xl font-serif text-foreground tracking-tight">TheFiveElders</h1>
+          <p className="text-muted-foreground text-lg">
+            Let the wise decide
+          </p>
         </div>
 
-        <Tabs defaultValue="chat" className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 bg-card">
-            <TabsTrigger value="chat" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              TheFiveElderss
-            </TabsTrigger>
-            <TabsTrigger value="account" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Account
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="chat" className="mt-6">
-            <ChatTab
-              user={user}
-              inviteCode={inviteCode}
-              setInviteCode={setInviteCode}
-              creating={creating}
-              joining={joining}
-              onCreateConversation={handleCreateConversation}
-              onJoinConversation={handleJoinConversation}
-            />
-          </TabsContent>
-
-          <TabsContent value="account" className="mt-6">
-            <AccountTab user={user} />
-          </TabsContent>
-        </Tabs>
+        <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-border/50 shadow-sm">
+          <ChatTab
+            user={user}
+            inviteCode={inviteCode}
+            setInviteCode={setInviteCode}
+            creating={creating}
+            joining={joining}
+            onCreateConversation={handleCreateConversation}
+            onJoinConversation={handleJoinConversation}
+          />
+        </div>
       </div>
     </div>
   );

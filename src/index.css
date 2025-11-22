@@ -56,7 +56,8 @@ All colors MUST be HSL.
 
   .dark {
     /* Warm Fireplace Theme - Dark Mode */
-    --background: 27 18% 24%;
+    --background: 30 15% 5%;
+    /* Deep warm black */
     /* Deep warm brown/charcoal */
     --foreground: 35 30% 90%;
     /* Soft cream - High Contrast */

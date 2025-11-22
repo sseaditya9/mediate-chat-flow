@@ -41,7 +41,7 @@ export const ChatTab = ({
               onClick={onCreateConversation}
               disabled={creating}
               className="w-full bg-primary hover:bg-primary/90"
-              size="lg"
+              size="default"
             >
               {creating ? 'Creating...' : 'Create New TheFiveElders'}
             </Button>
@@ -67,7 +67,7 @@ export const ChatTab = ({
               onClick={onJoinConversation}
               disabled={joining || !inviteCode.trim()}
               className="w-full bg-primary hover:bg-primary/90"
-              size="lg"
+              size="default"
             >
               {joining ? 'Joining...' : 'Join TheFiveElders'}
             </Button>
