@@ -39,10 +39,10 @@ const AIMediatorMessage: React.FC<AIMediatorMessageProps> = ({ content }) => {
 
     const getTypeColor = (type: string) => {
         switch (type) {
-            case 'ack': return 'bg-blue-100 text-blue-800 border-blue-200';
-            case 'ask': return 'bg-amber-100 text-amber-800 border-amber-200';
-            case 'judgement': return 'bg-purple-100 text-purple-800 border-purple-200';
-            default: return 'bg-gray-100 text-gray-800 border-gray-200';
+            case 'ack': return 'bg-green-500/20 text-green-700 dark:text-green-300 border-green-500/30';
+            case 'ask': return 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30';
+            case 'judgement': return 'bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/30';
+            default: return 'bg-muted text-muted-foreground border-border';
         }
     };
 
@@ -74,13 +74,13 @@ const AIMediatorMessage: React.FC<AIMediatorMessageProps> = ({ content }) => {
 
             {/* Actions */}
             {actions && actions.length > 0 && (
-                <div className="space-y-2 pt-2 border-t border-black/5">
+                <div className="space-y-2 pt-2 border-t border-border/50">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</p>
                     <div className="grid gap-2">
                         {actions.map((action, idx) => (
-                            <div key={idx} className="flex items-start gap-2 bg-white/50 p-2 rounded border border-black/5">
+                            <div key={idx} className="flex items-start gap-2 bg-background/40 p-2 rounded border border-border/50">
                                 <div className={`
-                  shrink-0 h-5 px-1.5 rounded flex items-center justify-center text-[10px] font-bold text-white bg-primary
+                  shrink-0 h-5 px-1.5 rounded flex items-center justify-center text-[10px] font-bold text-primary-foreground bg-primary
                 `}>
                                     {action.who}
                                 </div>
@@ -93,10 +93,10 @@ const AIMediatorMessage: React.FC<AIMediatorMessageProps> = ({ content }) => {
 
             {/* Clarification */}
             {clarify && (
-                <div className="flex items-start gap-2 bg-amber-50 text-amber-900 p-2.5 rounded border border-amber-100 text-sm">
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
+                <div className="flex items-start gap-2 bg-amber-500/10 text-amber-900 dark:text-amber-100 p-2.5 rounded border border-amber-500/20 text-sm">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
                     <div>
-                        <span className="font-semibold block text-xs uppercase text-amber-700 mb-0.5">Clarification Needed</span>
+                        <span className="font-semibold block text-xs uppercase text-amber-700 dark:text-amber-300 mb-0.5">Clarification Needed</span>
                         {clarify}
                     </div>
                 </div>

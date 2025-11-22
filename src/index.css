@@ -8,89 +8,96 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Soft Modern Theme - Gentle Slate & Warm Neutrals */
-    --background: 210 40% 98%;
-    /* Very soft blue-white */
-    --foreground: 222 47% 11%;
-    /* Deep slate for text */
+    /* Warm Fireplace Theme - Light Mode */
+    --background: 30 50% 98%;
+    /* Very pale warm cream */
+    --foreground: 20 40% 20%;
+    /* Dark warm brown */
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 20 40% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 20 40% 20%;
 
-    /* Gentle Slate Blue Primary */
-    --primary: 215 25% 27%;
-    --primary-foreground: 210 40% 98%;
+    /* Warm Terracotta Primary */
+    --primary: 25 70% 50%;
+    --primary-foreground: 30 50% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 30 30% 90%;
+    /* Soft Beige */
+    --secondary-foreground: 20 40% 20%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 30 20% 92%;
+    --muted-foreground: 25 20% 50%;
 
-    /* Soft Accent - Warm Coral/Peach for contrast */
-    --accent: 14 80% 65%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent - Amber/Gold */
+    --accent: 35 80% 60%;
+    --accent-foreground: 20 40% 20%;
 
-    /* AI Mediator - Soft Sage Green */
-    --ai-mediator: 150 30% 94%;
-    --ai-mediator-foreground: 150 40% 20%;
+    /* AI Mediator - Warm Sage */
+    --ai-mediator: 140 20% 90%;
+    --ai-mediator-foreground: 140 30% 25%;
 
     /* Message Bubbles */
-    --user-message: 215 25% 27%;
+    --user-message: 25 70% 50%;
     /* Matches Primary */
     --other-message: 0 0% 100%;
-    /* White card look */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 30 50% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 215 25% 27%;
+    --border: 30 20% 85%;
+    --input: 30 20% 85%;
+    --ring: 25 70% 50%;
 
     --radius: 0.75rem;
-    /* Slightly rounder for "gentle" feel */
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Warm Fireplace Theme - Dark Mode */
+    --background: 20 30% 12%;
+    /* Deep warm brown/charcoal */
+    --foreground: 35 30% 90%;
+    /* Soft cream - High Contrast */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 20 25% 16%;
+    /* Slightly lighter brown */
+    --card-foreground: 35 30% 90%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 20 25% 16%;
+    --popover-foreground: 35 30% 90%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Lighter Terracotta for Dark Mode */
+    --primary: 25 60% 60%;
+    --primary-foreground: 35 30% 90%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 25 20% 25%;
+    /* Darker brown */
+    --secondary-foreground: 35 30% 90%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 25 20% 25%;
+    --muted-foreground: 30 15% 70%;
+    /* Lighter grey-brown for readability */
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 25 20% 25%;
+    --accent-foreground: 35 30% 90%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 60% 40%;
+    --destructive-foreground: 35 30% 90%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 25 20% 25%;
+    --input: 25 20% 25%;
+    --ring: 25 60% 60%;
 
-    /* AI Mediator - Darker Sage */
-    --ai-mediator: 150 20% 15%;
-    --ai-mediator-foreground: 150 30% 90%;
+    /* AI Mediator - Dark Warm Sage */
+    --ai-mediator: 140 15% 20%;
+    --ai-mediator-foreground: 140 20% 85%;
 
     /* Message Bubbles */
-    --user-message: 217 30% 22%;
-    --other-message: 222 40% 10%;
+    --user-message: 25 50% 35%;
+    /* Darker Terracotta */
+    --other-message: 25 20% 20%;
   }
 }
 
@@ -101,5 +108,21 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    /* Smooth transition for theme switching */
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+  }
+
+  /* Ensure other elements transition smoothly too */
+  div,
+  span,
+  button,
+  input,
+  textarea,
+  section,
+  article,
+  nav,
+  header,
+  footer {
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
   }
 }

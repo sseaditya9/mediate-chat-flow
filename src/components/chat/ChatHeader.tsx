@@ -179,11 +179,11 @@ const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, invit
                         <div className="h-3 w-full bg-muted rounded-full overflow-hidden flex shadow-inner relative">
                             {/* Left Bar (Other Person - Gray/Muted or Secondary Color) */}
                             <div
-                                className="h-full bg-slate-400 transition-all duration-500 ease-out flex items-center justify-start px-2"
+                                className="h-full bg-muted-foreground transition-all duration-500 ease-out flex items-center justify-start px-2"
                                 style={{ width: `${leftSide.score}%` }}
                             >
                                 {leftSide.score > 15 && (
-                                    <span className="text-[9px] text-white font-bold">{leftSide.score}%</span>
+                                    <span className="text-[9px] text-background font-bold">{leftSide.score}%</span>
                                 )}
                             </div>
 
