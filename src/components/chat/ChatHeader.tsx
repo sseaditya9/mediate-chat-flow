@@ -1,8 +1,19 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, RefreshCw } from "lucide-react";
+import { ArrowLeft, Users, RefreshCw, LogOut, User as UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from '@supabase/supabase-js';
+import { ModeToggle } from "@/components/mode-toggle";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface Participant {
     user_id: string;
@@ -32,6 +43,13 @@ interface ChatHeaderProps {
 }
 
 const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, inviteCode, isConnected, onRefresh }: ChatHeaderProps) => {
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        navigate("/");
+    };
+
     const getInitials = (name: string) => {
         return name
             .split(" ")
@@ -134,8 +152,12 @@ const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, invit
                     </div>
                 </div>
 
-                {/* Right Side: Participants & Refresh */}
+
+
+                {/* Right Side: Participants, Refresh, Mode Toggle, Profile */}
                 <div className="flex items-center gap-2">
+                    <ModeToggle />
+
                     <Button
                         onClick={onRefresh}
                         variant="ghost"
@@ -146,7 +168,7 @@ const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, invit
                         <RefreshCw className="w-4 h-4" />
                     </Button>
 
-                    <div className="flex -space-x-2 overflow-hidden">
+                    <div className="flex -space-x-2 overflow-hidden mr-2">
                         {participants.slice(0, 4).map((p) => (
                             <Avatar key={p.user_id} className="inline-block h-8 w-8 border-2 border-background ring-1 ring-border">
                                 <AvatarImage src={p.avatar_url || undefined} />
@@ -161,45 +183,77 @@ const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, invit
                             </div>
                         )}
                     </div>
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                                <Avatar className="h-8 w-8">
+                                    <AvatarImage src={currentUser?.user_metadata?.avatar_url} alt={currentUser?.email} />
+                                    <AvatarFallback>{currentUser?.email ? getInitials(currentUser.email) : "ME"}</AvatarFallback>
+                                </Avatar>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56" align="end" forceMount>
+                            <DropdownMenuLabel className="font-normal">
+                                <div className="flex flex-col space-y-1">
+                                    <p className="text-sm font-medium leading-none">{currentUser?.user_metadata?.full_name || 'User'}</p>
+                                    <p className="text-xs leading-none text-muted-foreground">
+                                        {currentUser?.email}
+                                    </p>
+                                </div>
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => navigate("/dashboard")}> {/* Assuming dashboard is account/home */}
+                                <UserIcon className="mr-2 h-4 w-4" />
+                                <span>Account</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleLogout}>
+                                <LogOut className="mr-2 h-4 w-4" />
+                                <span>Log out</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
 
             {/* Win-O-Meter Section */}
-            {winOMeter && leftSide && rightSide && (
-                <div className="px-6 pb-4 pt-1">
-                    <div className="flex items-center justify-between text-xs font-medium mb-1.5 px-1">
-                        <span className="text-muted-foreground">{leftSide.name}</span>
-                        <span className="text-muted-foreground font-bold tracking-wider text-[10px] uppercase">Win-O-Meter</span>
-                        <span className="text-primary font-semibold">{rightSide.name} (You)</span>
-                    </div>
-
-                    <div className="h-3 w-full bg-muted rounded-full overflow-hidden flex shadow-inner relative">
-                        {/* Left Bar (Other Person - Gray/Muted or Secondary Color) */}
-                        <div
-                            className="h-full bg-slate-400 transition-all duration-500 ease-out flex items-center justify-start px-2"
-                            style={{ width: `${leftSide.score}%` }}
-                        >
-                            {leftSide.score > 15 && (
-                                <span className="text-[9px] text-white font-bold">{leftSide.score}%</span>
-                            )}
+            {
+                winOMeter && leftSide && rightSide && (
+                    <div className="px-6 pb-4 pt-1">
+                        <div className="flex items-center justify-between text-xs font-medium mb-1.5 px-1">
+                            <span className="text-muted-foreground">{leftSide.name}</span>
+                            <span className="text-muted-foreground font-bold tracking-wider text-[10px] uppercase">Win-O-Meter</span>
+                            <span className="text-primary font-semibold">{rightSide.name} (You)</span>
                         </div>
 
-                        {/* Right Bar (Me - Primary Color) */}
-                        <div
-                            className="h-full bg-primary transition-all duration-500 ease-out flex items-center justify-end px-2"
-                            style={{ width: `${rightSide.score}%` }}
-                        >
-                            {rightSide.score > 15 && (
-                                <span className="text-[9px] text-primary-foreground font-bold">{rightSide.score}%</span>
-                            )}
-                        </div>
+                        <div className="h-3 w-full bg-muted rounded-full overflow-hidden flex shadow-inner relative">
+                            {/* Left Bar (Other Person - Gray/Muted or Secondary Color) */}
+                            <div
+                                className="h-full bg-slate-400 transition-all duration-500 ease-out flex items-center justify-start px-2"
+                                style={{ width: `${leftSide.score}%` }}
+                            >
+                                {leftSide.score > 15 && (
+                                    <span className="text-[9px] text-white font-bold">{leftSide.score}%</span>
+                                )}
+                            </div>
 
-                        {/* Center Marker */}
-                        <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-background/50 transform -translate-x-1/2" />
+                            {/* Right Bar (Me - Primary Color) */}
+                            <div
+                                className="h-full bg-primary transition-all duration-500 ease-out flex items-center justify-end px-2"
+                                style={{ width: `${rightSide.score}%` }}
+                            >
+                                {rightSide.score > 15 && (
+                                    <span className="text-[9px] text-primary-foreground font-bold">{rightSide.score}%</span>
+                                )}
+                            </div>
+
+                            {/* Center Marker */}
+                            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-background/50 transform -translate-x-1/2" />
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };
 
