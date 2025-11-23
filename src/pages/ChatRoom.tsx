@@ -404,24 +404,47 @@ const ChatRoom = () => {
       const currentParticipant = participants.find(p => p.user_id === user.id);
       const userName = getParticipantName(currentParticipant);
 
-      console.log('[AI] Invoking mediate-message function for user:', userName);
-      const { data: aiData, error: aiError } = await supabase.functions.invoke('mediate-message', {
-        body: {
-          conversationId: conversationId,
-          userMessage: contentToSend, // Send encrypted message to AI
-          userName: userName,
-          participants: participants.map(p => ({
-            ...p,
-            display_name: getParticipantName(p) // Ensure we pass the resolved name
-          }))
-        }
-      });
+      // Retry logic for AI function (max 2 attempts)
+      let aiAttempt = 0;
+      let aiSuccess = false;
 
-      if (aiError) {
-        console.error('[AI] Mediation error:', aiError);
-        toast.error('AI failed to process message');
-      } else {
-        console.log('[AI] Mediation successful:', aiData);
+      while (aiAttempt < 2 && !aiSuccess) {
+        try {
+          aiAttempt++;
+          console.log(`[AI] Invoking mediate-message function for user: ${userName} (attempt ${aiAttempt})`);
+
+          const { data: aiData, error: aiError } = await supabase.functions.invoke('mediate-message', {
+            body: {
+              conversationId: conversationId,
+              userMessage: contentToSend,
+              userName: userName,
+              participants: participants.map(p => ({
+                ...p,
+                display_name: getParticipantName(p)
+              }))
+            }
+          });
+
+          if (aiError) {
+            throw aiError;
+          }
+
+          console.log('[AI] Mediation successful:', aiData);
+          aiSuccess = true;
+
+        } catch (aiErr: any) {
+          console.error(`[AI] Mediation error (attempt ${aiAttempt}):`, aiErr);
+
+          if (aiAttempt >= 2) {
+            // Final attempt failed
+            const errorMsg = aiErr?.message || 'Unknown error';
+            toast.error(`AI failed: ${errorMsg}`);
+          } else {
+            // Retry after short delay
+            console.log('[AI] Retrying in 1 second...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
       }
 
     } catch (error: any) {
