@@ -48,10 +48,10 @@ const AIMediatorMessage: React.FC<AIMediatorMessageProps> = ({ content }) => {
 
     const getTypeLabel = (type: string) => {
         switch (type) {
-            case 'ack': return 'The EldersFive acknowledge';
-            case 'ask': return 'The EldersFive seek clarification';
-            case 'judgement': return 'The EldersFive pass judgement';
-            default: return 'The EldersFive';
+            case 'ack': return 'Acknowledged';
+            case 'ask': return 'Clarification Needed';
+            case 'judgement': return 'Judgement Passed';
+            default: return 'Message';
         }
     };
 

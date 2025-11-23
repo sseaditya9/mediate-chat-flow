@@ -458,11 +458,6 @@ const ChatRoom = () => {
                       : 'bg-other-message text-foreground rounded-tl-sm'
                     } ${message.status === 'sending' ? 'opacity-70' : ''} ${message.status === 'error' ? 'border border-destructive' : ''}`}
                 >
-                  {isAI && (
-                    <p className="text-xs font-bold mb-2 opacity-90 uppercase tracking-wide">
-                      TheFiveElders
-                    </p>
-                  )}
 
                   {isAI ? (
                     <AIMediatorMessage content={decryptedContent} />
@@ -514,7 +509,7 @@ const ChatRoom = () => {
             className="flex-1 bg-input border-border focus:border-primary h-11"
           />
           <Button type="submit" disabled={!newMessage.trim()} size="icon" className="bg-primary hover:bg-primary/90 h-11 w-11 rounded-xl">
-            {encryptionKey ? <Lock className="w-4 h-4" /> : <Send className="w-5 h-5" />}
+            <Send className="w-5 h-5" />
           </Button>
         </form>
       </div>

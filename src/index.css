@@ -61,8 +61,8 @@ All colors MUST be HSL.
     --foreground: 30 20% 90%;
     /* Warm white */
 
-    --card: 240 10% 10%;
-    /* Dark charcoal card */
+    --card: 140 15% 12%;
+    /* Olive sage card */
     --card-foreground: 30 20% 90%;
 
     --popover: 240 10% 10%;
@@ -90,9 +90,9 @@ All colors MUST be HSL.
     --input: 240 10% 15%;
     --ring: 15 80% 55%;
 
-    /* AI Mediator - Deep Teal/Slate */
-    --ai-mediator: 180 30% 15%;
-    --ai-mediator-foreground: 180 20% 90%;
+    /* AI Mediator - Warm Olive Green */
+    --ai-mediator: 140 25% 18%;
+    --ai-mediator-foreground: 140 20% 90%;
 
     /* Message Bubbles */
     --user-message: 15 70% 45%;
