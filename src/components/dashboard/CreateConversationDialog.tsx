@@ -38,7 +38,7 @@ export function CreateConversationDialog({ user }: CreateConversationDialogProps
                 .from('conversations')
                 .insert({
                     invite_code: code,
-                    title: 'New ElderFives'
+                    title: 'New Conversation'
                 })
                 .select()
                 .single();

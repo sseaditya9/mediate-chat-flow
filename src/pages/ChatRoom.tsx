@@ -224,6 +224,34 @@ const ChatRoom = () => {
       });
       console.log('[fetchParticipants] Setting participants:', formattedParticipants);
       setParticipants(formattedParticipants);
+
+      // Check if we need to update the default title
+      if (formattedParticipants.length === 2 && (conversationTitle === 'New Conversation' || conversationTitle === 'New ElderFives')) {
+        const otherParticipant = formattedParticipants.find((p: any) => p.user_id !== user?.id);
+        if (otherParticipant) {
+          const otherName = otherParticipant.display_name || otherParticipant.full_name || 'User';
+
+          // Count existing conversations with this user to determine number
+          const { count } = await supabase
+            .from('conversations')
+            .select('*', { count: 'exact', head: true })
+            .ilike('title', `Conversation with ${otherName}%`);
+
+          const nextNum = (count || 0) + 1;
+          const newTitle = `Conversation with ${otherName} ${nextNum}`;
+
+          console.log(`[Title] Updating default title to: ${newTitle}`);
+
+          const { error: updateError } = await supabase
+            .from('conversations')
+            .update({ title: newTitle })
+            .eq('id', conversationId);
+
+          if (!updateError) {
+            setConversationTitle(newTitle);
+          }
+        }
+      }
     }
   };
 
@@ -313,6 +341,21 @@ const ChatRoom = () => {
             }
             return prev;
           });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'conversations',
+          filter: `id=eq.${conversationId}`
+        },
+        (payload) => {
+          if (payload.new.title) {
+            console.log('[Subscription] Title updated:', payload.new.title);
+            setConversationTitle(payload.new.title);
+          }
         }
       )
       .subscribe((status) => {
