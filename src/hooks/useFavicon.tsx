@@ -18,7 +18,7 @@ export const useFavicon = () => {
         };
 
         const resolvedTheme = getResolvedTheme();
-        const faviconPath = resolvedTheme === 'dark' ? '/darkfav.ico' : '/lightfav.ico';
+        const faviconPath = resolvedTheme === 'dark' ? '/favicon-dark.png?v=3' : '/favicon-light.png?v=3';
 
         // Update the default favicon
         favicon.href = faviconPath;
