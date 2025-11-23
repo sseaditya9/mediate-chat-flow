@@ -19,11 +19,11 @@ const About = () => {
 
                     <div className="prose dark:prose-invert max-w-none space-y-4 text-lg leading-relaxed text-muted-foreground">
                         <p>
-                            <span className="font-semibold text-foreground">The EldersFive</span> is based on the legendary tradition of five wise elders who used to settle conflicts, big and small before anyone could storm off in a huff. They didn’t need degrees or long speeches, just authority, attitude, and a sharp sense of humor. So we stole that vibe.
+                            <span className="font-semibold text-foreground">The EldersFive</span> is based on the legendary tradition of five wise elders who used to settle conflicts, big and small whenever two people disagreed, felt stuck, and needed an impartial authority to step in and help them see things clearly. They didn’t need degrees or long speeches, just authority, attitude, and a sharp sense of humor. So we stole that vibe.
                         </p>
                         <p>
-                            Two people drop their drama.
-                            The Elders roll their eyes, ask the right questions, and deliver a verdict that actually makes sense.
+                            Two people drop their dispute.
+                            The Elders listens,  ask the right questions, and deliver a verdict that actually makes sense.
                             Fast. Fair. A little too honest.
                         </p>
                         <p>
