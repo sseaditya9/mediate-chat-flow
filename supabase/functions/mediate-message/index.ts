@@ -187,7 +187,9 @@ Deno.serve(async (req) => {
 
     if (lastLine !== newMessageLine) {
       labeledLines.push(newMessageLine);
+      console.log(`[AI] Adding new message from ${userName}`);
     } else {
+      console.log(`[AI] Deduplication: Skipping duplicate message from ${userName}`);
       console.log('[mediate] Duplicate message detected in DB history, skipping append.');
     }
 

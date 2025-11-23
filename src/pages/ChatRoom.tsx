@@ -260,6 +260,18 @@ const ChatRoom = () => {
                 }
                 return [...prev, newMessage];
               });
+
+              // Check if sender is unknown and refresh participants
+              if (!newMessage.is_ai_mediator && newMessage.sender_id) {
+                setParticipants(prev => {
+                  const senderExists = prev.some(p => p.user_id === newMessage.sender_id);
+                  if (!senderExists) {
+                    console.log('Unknown sender detected, refreshing participants...');
+                    fetchParticipants();
+                  }
+                  return prev;
+                });
+              }
             }
           }
         }
@@ -274,7 +286,7 @@ const ChatRoom = () => {
         },
         () => {
           console.log('Participant change detected! Refreshing...');
-          setTimeout(fetchParticipants, 1000);
+          fetchParticipants();
         }
       )
       .on(

@@ -25,7 +25,7 @@ export function JoinConversationDialog({ user }: JoinConversationDialogProps) {
     const [inviteCode, setInviteCode] = useState("");
     const navigate = useNavigate();
 
-    const handleJoinConversation = async () => {
+    const handleJoinConversation = async (retryCount = 0) => {
         if (!user || !inviteCode.trim()) {
             toast.error('Please enter an invite code');
             return;
@@ -53,12 +53,21 @@ export function JoinConversationDialog({ user }: JoinConversationDialogProps) {
                 });
 
             if (participantError) {
+                // Check if already a participant
                 if (participantError.code === '23505') {
                     toast.info('You are already in this ElderFives');
                     setOpen(false);
                     navigate(`/chat/${conversation.id}`);
                     return;
                 }
+
+                // Retry on RLS timing issues (first attempt only)
+                if (retryCount === 0 && participantError.message.includes('policy')) {
+                    console.log('RLS timing issue detected, retrying...');
+                    setTimeout(() => handleJoinConversation(1), 500);
+                    return;
+                }
+
                 throw participantError;
             }
 
@@ -96,7 +105,7 @@ export function JoinConversationDialog({ user }: JoinConversationDialogProps) {
                         maxLength={8}
                     />
                     <div className="flex justify-end">
-                        <Button onClick={handleJoinConversation} disabled={joining || !inviteCode.trim()}>
+                        <Button onClick={() => handleJoinConversation()} disabled={joining || !inviteCode.trim()}>
                             {joining && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {joining ? 'Joining...' : 'Join Conversation'}
                         </Button>
