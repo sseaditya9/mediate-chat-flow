@@ -49,9 +49,11 @@ const ChatRoom = () => {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [winOMeter, setWinOMeter] = useState<WinOMeterData | null>(null);
   const [encryptionKey, setEncryptionKey] = useState<string | null>(null);
+  const [isAIProcessing, setIsAIProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const fetchParticipantsRef = useRef<() => Promise<void>>();
+  const aiTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [isConnected, setIsConnected] = useState(false);
 
@@ -404,6 +406,14 @@ const ChatRoom = () => {
       const currentParticipant = participants.find(p => p.user_id === user.id);
       const userName = getParticipantName(currentParticipant);
 
+      // Set AI processing state with 30s timeout
+      setIsAIProcessing(true);
+      aiTimeoutRef.current = setTimeout(() => {
+        console.log('[AI] Timeout after 30 seconds');
+        setIsAIProcessing(false);
+        toast.error('AI response timed out');
+      }, 40000);
+
       // Retry logic for AI function (max 2 attempts)
       let aiAttempt = 0;
       let aiSuccess = false;
@@ -432,11 +442,24 @@ const ChatRoom = () => {
           console.log('[AI] Mediation successful:', aiData);
           aiSuccess = true;
 
+          // Clear timeout and processing state on success
+          if (aiTimeoutRef.current) {
+            clearTimeout(aiTimeoutRef.current);
+            aiTimeoutRef.current = null;
+          }
+          setIsAIProcessing(false);
+
         } catch (aiErr: any) {
           console.error(`[AI] Mediation error (attempt ${aiAttempt}):`, aiErr);
 
           if (aiAttempt >= 2) {
-            // Final attempt failed
+            // Final attempt failed - clear timeout and state
+            if (aiTimeoutRef.current) {
+              clearTimeout(aiTimeoutRef.current);
+              aiTimeoutRef.current = null;
+            }
+            setIsAIProcessing(false);
+
             const errorMsg = aiErr?.message || 'Unknown error';
             toast.error(`AI failed: ${errorMsg}`);
           } else {
@@ -552,7 +575,11 @@ const ChatRoom = () => {
             className="flex-1 bg-input border-border focus:border-primary h-11"
           />
           <Button type="submit" disabled={!newMessage.trim()} size="icon" className="bg-primary hover:bg-primary/90 h-11 w-11 rounded-xl">
-            <Send className="w-5 h-5" />
+            {isAIProcessing ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Send className="w-5 h-5" />
+            )}
           </Button>
         </form>
       </div>
