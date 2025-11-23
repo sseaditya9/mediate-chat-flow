@@ -33,7 +33,7 @@ export function Header() {
                 <div className="mr-4 flex">
                     <Link to={user ? "/dashboard" : "/"} className="mr-6 flex items-center space-x-2">
                         <span className="hidden font-serif font-bold sm:inline-block">
-                            TheFiveElders
+                            ElderFives
                         </span>
                     </Link>
                     <nav className="flex items-center gap-4 text-sm font-medium">

@@ -38,7 +38,7 @@ export function CreateConversationDialog({ user }: CreateConversationDialogProps
                 .from('conversations')
                 .insert({
                     invite_code: code,
-                    title: 'New TheFiveElders'
+                    title: 'New ElderFives'
                 })
                 .select()
                 .single();
@@ -54,12 +54,12 @@ export function CreateConversationDialog({ user }: CreateConversationDialogProps
 
             if (participantError) throw participantError;
 
-            toast.success(`TheFiveElders created! Invite code: ${code}`);
+            toast.success(`ElderFives created! Invite code: ${code}`);
             setOpen(false);
             navigate(`/chat/${conversation.id}`);
         } catch (error: any) {
             console.error('Error creating conversation:', error);
-            toast.error(error.message || 'Failed to create TheFiveElders');
+            toast.error(error.message || 'Failed to create ElderFives');
         } finally {
             setCreating(false);
         }
@@ -75,7 +75,7 @@ export function CreateConversationDialog({ user }: CreateConversationDialogProps
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Create New TheFiveElders</DialogTitle>
+                    <DialogTitle>Create New ElderFives</DialogTitle>
                     <DialogDescription>
                         Start a new mediated conversation. You'll get an invite code to share.
                     </DialogDescription>

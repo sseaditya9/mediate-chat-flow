@@ -168,7 +168,7 @@ Deno.serve(async (req) => {
     for (const m of messages) {
       let speakerName = 'User';
       if (m.is_ai_mediator) {
-        speakerName = 'TheFiveElders';
+        speakerName = 'ElderFives';
       } else if (m.sender) {
         speakerName = (m.sender.display_name && m.sender.display_name.trim())
           ? m.sender.display_name

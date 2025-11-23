@@ -32,7 +32,7 @@ const Account = () => {
                 </div>
 
                 <div className="text-center space-y-2 pb-4">
-                    <h1 className="text-4xl font-serif text-foreground tracking-tight">TheFiveElders</h1>
+                    <h1 className="text-4xl font-serif text-foreground tracking-tight">ElderFives</h1>
                     <p className="text-muted-foreground">
                         Account Management
                     </p>

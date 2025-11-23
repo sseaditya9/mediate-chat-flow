@@ -54,7 +54,7 @@ export function JoinConversationDialog({ user }: JoinConversationDialogProps) {
 
             if (participantError) {
                 if (participantError.code === '23505') {
-                    toast.info('You are already in this TheFiveElders');
+                    toast.info('You are already in this ElderFives');
                     setOpen(false);
                     navigate(`/chat/${conversation.id}`);
                     return;
@@ -62,12 +62,12 @@ export function JoinConversationDialog({ user }: JoinConversationDialogProps) {
                 throw participantError;
             }
 
-            toast.success('Joined TheFiveElders successfully!');
+            toast.success('Joined ElderFives successfully!');
             setOpen(false);
             navigate(`/chat/${conversation.id}`);
         } catch (error: any) {
             console.error('Error joining conversation:', error);
-            toast.error(error.message || 'Failed to join TheFiveElders');
+            toast.error(error.message || 'Failed to join ElderFives');
         } finally {
             setJoining(false);
         }
@@ -83,7 +83,7 @@ export function JoinConversationDialog({ user }: JoinConversationDialogProps) {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Join TheFiveElders</DialogTitle>
+                    <DialogTitle>Join ElderFives</DialogTitle>
                     <DialogDescription>
                         Enter the invite code to join an existing conversation.
                     </DialogDescription>

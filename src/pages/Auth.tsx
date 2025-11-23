@@ -59,7 +59,7 @@ const Auth = () => {
           </div>
           <div>
             <h1 className="text-5xl tracking-tight text-foreground font-serif">
-              TheFiveElders
+              ElderFives
             </h1>
             <p className="mt-3 text-lg text-muted-foreground">
               Summon the EldersFive
