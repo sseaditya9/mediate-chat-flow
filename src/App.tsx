@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Auth from "./pages/Auth";
 import Account from "./pages/Account";
 import About from "./pages/About";
+import HowTo from "./pages/HowTo";
 import { Header } from "@/components/layout/Header";
 import { GlobalControls } from "@/components/layout/GlobalControls";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -31,6 +32,7 @@ const AppContent = () => {
           <Route path="/chat/:conversationId" element={<ChatRoom />} />
           <Route path="/account" element={<Account />} />
           <Route path="/about" element={<About />} />
+          <Route path="/how-to" element={<HowTo />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

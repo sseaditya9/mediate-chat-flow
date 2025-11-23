@@ -43,6 +43,20 @@ export function Header() {
                         >
                             About
                         </Link>
+                        <Link
+                            to="/how-to"
+                            className="transition-colors hover:text-foreground/80 text-foreground/60"
+                        >
+                            How To
+                        </Link>
+                        {user && (
+                            <Link
+                                to="/account"
+                                className="transition-colors hover:text-foreground/80 text-foreground/60"
+                            >
+                                Account
+                            </Link>
+                        )}
                     </nav>
                 </div>
                 <div className="flex flex-1 items-center justify-end space-x-2">
