@@ -169,7 +169,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
 
   if (loading) {
     return (
-      <Card className="border-accent/20">
+      <Card className="border-border/30 dark:border-ai-mediator/10 shadow-sm">
         <CardContent className="py-8">
           <div className="text-center text-muted-foreground">Loading sessions...</div>
         </CardContent>

@@ -117,9 +117,21 @@ const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, invit
                                 {title}
                             </h1>
                             {inviteCode && (
-                                <span className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                                    #{inviteCode}
-                                </span>
+                                <div className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-lg">
+                                    <span className="font-mono text-base font-semibold text-foreground">
+                                        #{inviteCode}
+                                    </span>
+                                    <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-7 w-7 p-0"
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(inviteCode);
+                                        }}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                    </Button>
+                                </div>
                             )}
                             {/* Connection Status Indicator */}
                             <div
