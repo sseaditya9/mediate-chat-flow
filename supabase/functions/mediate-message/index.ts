@@ -306,12 +306,20 @@ Ensure 'win_meter' uses the names "${name1}" and "${name2}" for left/right keys.
 
     if (insertError) throw insertError;
 
-    // Update conversation title if AI provided one
+    // Update conversation title and win_meter if AI provided them
+    const updates: any = {};
     if (finalResponseObj?.conversation_title) {
-      console.log(`[mediate] Updating title to: ${finalResponseObj.conversation_title}`);
+      updates.title = finalResponseObj.conversation_title;
+    }
+    if (finalResponseObj?.win_meter) {
+      updates.latest_win_meter = finalResponseObj.win_meter;
+    }
+
+    if (Object.keys(updates).length > 0) {
+      console.log(`[mediate] Updating conversation metadata:`, updates);
       await supabase
         .from('conversations')
-        .update({ title: finalResponseObj.conversation_title })
+        .update(updates)
         .eq('id', conversationId);
     }
 

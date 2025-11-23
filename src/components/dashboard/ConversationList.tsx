@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { MessageSquare, Trash2, Edit2, Check, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { MiniWinOMeter } from "@/components/dashboard/MiniWinOMeter";
 
 interface Conversation {
   id: string;
@@ -14,7 +15,10 @@ interface Conversation {
   created_at: string;
   message_count?: number;
   other_participant?: string;
+  latest_win_meter?: any;
 }
+
+
 
 const ITEMS_PER_PAGE = 10;
 
@@ -100,6 +104,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
               ...conv,
               message_count: count || 0,
               other_participant: displayName,
+              latest_win_meter: (conv as any).latest_win_meter,
             };
           })
         );
@@ -250,6 +255,11 @@ export const ConversationList = ({ userId }: { userId: string }) => {
                         <span>•</span>
                         <span className="font-mono text-foreground">{conversation.invite_code}</span>
                       </div>
+                      {conversation.latest_win_meter && (
+                        <div className="mt-3">
+                          <MiniWinOMeter data={conversation.latest_win_meter} />
+                        </div>
+                      )}
                     </div>
                     <Button
                       onClick={(e) => {
