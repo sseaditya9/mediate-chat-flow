@@ -51,6 +51,7 @@ const ChatRoom = () => {
   const [encryptionKey, setEncryptionKey] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
+  const fetchParticipantsRef = useRef<() => Promise<void>>();
 
   const [isConnected, setIsConnected] = useState(false);
 
@@ -193,13 +194,14 @@ const ChatRoom = () => {
 
   const fetchParticipants = async () => {
     if (!conversationId) return;
+    console.log('[fetchParticipants] Fetching participants for conversation:', conversationId);
     const { data: rpcData, error } = await supabase
       .rpc('get_conversation_participants', { conversation_uuid: conversationId });
 
     if (error) {
-      console.error('Error fetching participants:', error);
+      console.error('[fetchParticipants] Error fetching participants:', error);
     } else {
-      console.log('Participants data from RPC:', rpcData);
+      console.log('[fetchParticipants] Participants data from RPC:', rpcData);
 
       // Fetch profiles directly for all participants to ensure fresh data
       const userIds = (rpcData || []).map((p: any) => p.user_id);
@@ -218,9 +220,13 @@ const ChatRoom = () => {
           email: p.email
         };
       });
+      console.log('[fetchParticipants] Setting participants:', formattedParticipants);
       setParticipants(formattedParticipants);
     }
   };
+
+  // Update ref whenever fetchParticipants changes
+  fetchParticipantsRef.current = fetchParticipants;
 
   const handleManualRefresh = () => {
     fetchMessages();
@@ -266,8 +272,8 @@ const ChatRoom = () => {
                 setParticipants(prev => {
                   const senderExists = prev.some(p => p.user_id === newMessage.sender_id);
                   if (!senderExists) {
-                    console.log('Unknown sender detected, refreshing participants...');
-                    fetchParticipants();
+                    console.log('[Message] Unknown sender detected, refreshing participants...');
+                    fetchParticipantsRef.current?.();
                   }
                   return prev;
                 });
@@ -285,8 +291,8 @@ const ChatRoom = () => {
           filter: `conversation_id=eq.${conversationId}`
         },
         () => {
-          console.log('Participant change detected! Refreshing...');
-          fetchParticipants();
+          console.log('[Subscription] Participant change detected! Refreshing...');
+          fetchParticipantsRef.current?.();
         }
       )
       .on(
@@ -398,7 +404,8 @@ const ChatRoom = () => {
       const currentParticipant = participants.find(p => p.user_id === user.id);
       const userName = getParticipantName(currentParticipant);
 
-      supabase.functions.invoke('mediate-message', {
+      console.log('[AI] Invoking mediate-message function for user:', userName);
+      const { data: aiData, error: aiError } = await supabase.functions.invoke('mediate-message', {
         body: {
           conversationId: conversationId,
           userMessage: contentToSend, // Send encrypted message to AI
@@ -408,11 +415,14 @@ const ChatRoom = () => {
             display_name: getParticipantName(p) // Ensure we pass the resolved name
           }))
         }
-      }).then(({ error }) => {
-        if (error) {
-          console.error('AI mediation error:', error);
-        }
       });
+
+      if (aiError) {
+        console.error('[AI] Mediation error:', aiError);
+        toast.error('AI failed to process message');
+      } else {
+        console.log('[AI] Mediation successful:', aiData);
+      }
 
     } catch (error: any) {
       console.error('Error sending message:', error);
