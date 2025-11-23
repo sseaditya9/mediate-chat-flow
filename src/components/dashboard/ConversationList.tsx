@@ -115,7 +115,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
   };
 
   const handleDeleteConversation = async (conversationId: string) => {
-    if (!confirm('Are you sure you want to delete this TheFiveElders?')) return;
+    if (!confirm('Are you sure you want to delete this session?')) return;
 
     try {
       const { error } = await supabase
@@ -126,10 +126,10 @@ export const ConversationList = ({ userId }: { userId: string }) => {
       if (error) throw error;
 
       setConversations(prev => prev.filter(c => c.id !== conversationId));
-      toast.success('TheFiveElders deleted');
+      toast.success('Session deleted');
     } catch (error: any) {
       console.error('Error deleting conversation:', error);
-      toast.error(error.message || 'Failed to delete TheFiveElders');
+      toast.error(error.message || 'Failed to delete session');
     }
   };
 
@@ -200,7 +200,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
                 <div
                   key={conversation.id}
                   onClick={() => !editingId && navigate(`/chat/${conversation.id}`)}
-                  className="p-4 border border-border rounded-lg hover:bg-muted/30 transition-all cursor-pointer group"
+                  className="p-4 border border-border rounded-lg hover:bg-ai-mediator/5 dark:bg-ai-mediator/5 dark:border-ai-mediator/20 transition-all cursor-pointer group"
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex-1 min-w-0">
