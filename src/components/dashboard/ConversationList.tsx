@@ -178,7 +178,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
   }
 
   return (
-    <Card className="border-accent/20">
+    <Card className="border-border/30 dark:border-ai-mediator/10 shadow-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-foreground">
           <MessageSquare className="w-5 h-5 text-foreground" />
@@ -200,7 +200,7 @@ export const ConversationList = ({ userId }: { userId: string }) => {
                 <div
                   key={conversation.id}
                   onClick={() => !editingId && navigate(`/chat/${conversation.id}`)}
-                  className="p-4 border border-border rounded-lg hover:bg-ai-mediator/5 dark:bg-ai-mediator/5 dark:border-ai-mediator/20 transition-all cursor-pointer group"
+                  className="p-4 rounded-lg bg-card/80 dark:bg-ai-mediator/20 border border-border/30 dark:border-transparent hover:bg-ai-mediator/10 dark:hover:bg-ai-mediator/30 transition-all cursor-pointer group shadow-sm"
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex-1 min-w-0">
