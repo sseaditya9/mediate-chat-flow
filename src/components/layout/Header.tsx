@@ -29,14 +29,14 @@ export function Header() {
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-14 max-w-screen-2xl items-center">
-                <div className="mr-4 flex">
+            <div className="container flex h-14 max-w-screen-2xl items-center px-2 sm:px-4">
+                <div className="mr-2 sm:mr-4 flex">
                     <Link to={user ? "/dashboard" : "/"} className="mr-2 sm:mr-6 flex items-center space-x-2">
                         <span className="font-serif font-bold text-sm sm:text-base">
                             ElderFives
                         </span>
                     </Link>
-                    <nav className="hidden sm:flex items-center gap-4 text-sm font-medium">
+                    <nav className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm font-medium">
                         <Link
                             to="/about"
                             className="transition-colors hover:text-foreground/80 text-foreground/60"
@@ -45,7 +45,7 @@ export function Header() {
                         </Link>
                         <Link
                             to="/how-to"
-                            className="transition-colors hover:text-foreground/80 text-foreground/60"
+                            className="transition-colors hover:text-foreground/80 text-foreground/60 whitespace-nowrap"
                         >
                             How To
                         </Link>
