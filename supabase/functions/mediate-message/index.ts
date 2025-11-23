@@ -22,8 +22,7 @@ STRICT OUTPUT: Always output EXACTLY one JSON object (nothing else) with the fol
     "right": { "name": "<Name2>", "score": <int 0-100> } 
   },
   "actions": [ { "who": "<Name>", "action": "<short instruction>" } ],
-  "clarify": "<optional short question if type=='ask'>",
-  "conversation_title": "<optional witty, dry, humorous title (max 6 words) if context is clear>"
+  "clarify": "<optional short question if type=='ask'>"
 }
 
 Rules:
@@ -33,7 +32,6 @@ Rules:
 4) When both sides have replied about the same issue and no critical facts are missing, return type='judgement', include a short ruling in 'text', a win_meter, and up to 2 actions.
 5) Win meter: use 50/50 for equal, 60/40 or 70/30 for mild advantage, 80/20 or 90/10 for clear fault. Ensure 'left' and 'right' correspond to the two main participants.
 6) Do not output any prose outside the JSON object. If you cannot answer, still return a JSON with type='ask' and a clarifying question.
-7) TITLE UPDATE: If the current title is generic (starts with 'Conversation with' or is 'New Conversation') AND you understand the context, provide a 'conversation_title'. It should be witty, dry, and humorous, summarizing the conflict (e.g. 'The Great Cable War of 2024').
 
 Example (two-turn flow):
 Input conversation:
@@ -306,20 +304,12 @@ Ensure 'win_meter' uses the names "${name1}" and "${name2}" for left/right keys.
 
     if (insertError) throw insertError;
 
-    // Update conversation title and win_meter if AI provided them
-    const updates: any = {};
+    // Update conversation title if AI provided one
     if (finalResponseObj?.conversation_title) {
-      updates.title = finalResponseObj.conversation_title;
-    }
-    if (finalResponseObj?.win_meter) {
-      updates.latest_win_meter = finalResponseObj.win_meter;
-    }
-
-    if (Object.keys(updates).length > 0) {
-      console.log(`[mediate] Updating conversation metadata:`, updates);
+      console.log(`[mediate] Updating title to: ${finalResponseObj.conversation_title}`);
       await supabase
         .from('conversations')
-        .update(updates)
+        .update({ title: finalResponseObj.conversation_title })
         .eq('id', conversationId);
     }
 

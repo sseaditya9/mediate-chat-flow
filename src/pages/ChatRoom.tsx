@@ -224,34 +224,6 @@ const ChatRoom = () => {
       });
       console.log('[fetchParticipants] Setting participants:', formattedParticipants);
       setParticipants(formattedParticipants);
-
-      // Check if we need to update the default title
-      if (formattedParticipants.length === 2 && (conversationTitle === 'New Conversation' || conversationTitle === 'New ElderFives')) {
-        const otherParticipant = formattedParticipants.find((p: any) => p.user_id !== user?.id);
-        if (otherParticipant) {
-          const otherName = otherParticipant.display_name || otherParticipant.full_name || 'User';
-
-          // Count existing conversations with this user to determine number
-          const { count } = await supabase
-            .from('conversations')
-            .select('*', { count: 'exact', head: true })
-            .ilike('title', `Conversation with ${otherName}%`);
-
-          const nextNum = (count || 0) + 1;
-          const newTitle = `Conversation with ${otherName} ${nextNum}`;
-
-          console.log(`[Title] Updating default title to: ${newTitle}`);
-
-          const { error: updateError } = await supabase
-            .from('conversations')
-            .update({ title: newTitle })
-            .eq('id', conversationId);
-
-          if (!updateError) {
-            setConversationTitle(newTitle);
-          }
-        }
-      }
     }
   };
 
@@ -281,33 +253,29 @@ const ChatRoom = () => {
         {
           event: '*',
           schema: 'public',
-          table: 'messages'
-          // Removed filter to debug if events are being sent at all. 
-          // We will filter client-side.
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`
         },
         (payload) => {
           if (payload.eventType === 'INSERT') {
             const newMessage = payload.new as Message;
-            // Client-side filter
-            if (newMessage.conversation_id === conversationId) {
-              setMessages(prev => {
-                if (prev.some(msg => msg.id === newMessage.id)) {
-                  return prev;
-                }
-                return [...prev, newMessage];
-              });
-
-              // Check if sender is unknown and refresh participants
-              if (!newMessage.is_ai_mediator && newMessage.sender_id) {
-                setParticipants(prev => {
-                  const senderExists = prev.some(p => p.user_id === newMessage.sender_id);
-                  if (!senderExists) {
-                    console.log('[Message] Unknown sender detected, refreshing participants...');
-                    fetchParticipantsRef.current?.();
-                  }
-                  return prev;
-                });
+            setMessages(prev => {
+              if (prev.some(msg => msg.id === newMessage.id)) {
+                return prev;
               }
+              return [...prev, newMessage];
+            });
+
+            // Check if sender is unknown and refresh participants
+            if (!newMessage.is_ai_mediator && newMessage.sender_id) {
+              setParticipants(prev => {
+                const senderExists = prev.some(p => p.user_id === newMessage.sender_id);
+                if (!senderExists) {
+                  console.log('[Message] Unknown sender detected, refreshing participants...');
+                  fetchParticipantsRef.current?.();
+                }
+                return prev;
+              });
             }
           }
         }
@@ -341,21 +309,6 @@ const ChatRoom = () => {
             }
             return prev;
           });
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'conversations',
-          filter: `id=eq.${conversationId}`
-        },
-        (payload) => {
-          if (payload.new.title) {
-            console.log('[Subscription] Title updated:', payload.new.title);
-            setConversationTitle(payload.new.title);
-          }
         }
       )
       .subscribe((status) => {
