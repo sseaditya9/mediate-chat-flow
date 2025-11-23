@@ -413,7 +413,7 @@ const ChatRoom = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-screen md:h-screen flex flex-col bg-background overflow-hidden">
       <ChatHeader
         title={conversationTitle}
         participants={participants}
@@ -425,7 +425,7 @@ const ChatRoom = () => {
         onRefresh={handleManualRefresh}
       />
       <div className="flex-1 overflow-y-auto px-4 py-6">
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6 pb-4">
           {messages.map((message) => {
             const isUser = message.sender_id === user?.id;
             const isAI = message.is_ai_mediator;
@@ -438,23 +438,22 @@ const ChatRoom = () => {
             return (
               <div
                 key={message.id}
-                className={`flex gap-3 ${isAI ? 'justify-center' : isUser ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${isAI ? 'justify-center' : isUser ? 'justify-end' : 'justify-start'} items-start gap-3`}
               >
-                {/* Avatar for Other Users */}
                 {!isUser && !isAI && (
-                  <Avatar className="h-8 w-8 mt-1 border border-border">
-                    <AvatarImage src={sender?.avatar_url || undefined} />
-                    <AvatarFallback className="bg-muted text-[10px] text-muted-foreground">
-                      {getInitials(senderName)}
+                  <Avatar className="w-8 h-8 shrink-0">
+                    <AvatarImage src={sender?.avatar_url || undefined} alt={senderName} />
+                    <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                      {senderName.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 )}
 
                 <div
-                  className={`max-w-[75%] rounded-2xl px-5 py-3.5 shadow-sm ${isAI
-                    ? 'bg-ai-mediator text-ai-mediator-foreground w-full max-w-[90%]'
+                  className={`max-w-[85%] md:max-w-[70%] px-4 py-3 rounded-2xl ${isAI
+                    ? 'w-full bg-ai-mediator text-ai-mediator-foreground'
                     : isUser
-                      ? 'bg-user-message text-primary-foreground rounded-tr-sm'
+                      ? 'bg-user-message text-primary-foreground rounded-br-sm'
                       : 'bg-other-message text-foreground rounded-tl-sm'
                     } ${message.status === 'sending' ? 'opacity-70' : ''} ${message.status === 'error' ? 'border border-destructive' : ''}`}
                 >
@@ -478,18 +477,17 @@ const ChatRoom = () => {
                     </span>
                   )}
                   {message.status === 'error' && (
-                    <span className="text-[10px] text-destructive-foreground flex items-center gap-1 mt-1 justify-end">
+                    <span className="text-[10px] text-destructive flex items-center gap-1 mt-1 justify-end">
                       Failed to send
                     </span>
                   )}
                 </div>
 
-                {/* Avatar for Current User */}
                 {isUser && (
-                  <Avatar className="h-8 w-8 mt-1 border border-border">
-                    <AvatarImage src={user?.user_metadata?.avatar_url} />
-                    <AvatarFallback className="bg-primary/20 text-primary text-[10px]">
-                      {user?.email ? getInitials(user.email) : "ME"}
+                  <Avatar className="w-8 h-8 shrink-0 hidden md:block">
+                    <AvatarImage src={user?.user_metadata?.avatar_url} alt="You" />
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                      {user?.email?.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 )}
@@ -500,8 +498,8 @@ const ChatRoom = () => {
         </div>
       </div>
 
-      <div className="border-t border-border bg-card px-4 py-4">
-        <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex gap-3">
+      <div className="border-t border-border bg-background p-4 shrink-0">
+        <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex items-center gap-2">
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}

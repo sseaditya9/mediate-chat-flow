@@ -31,12 +31,12 @@ export function Header() {
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-14 max-w-screen-2xl items-center">
                 <div className="mr-4 flex">
-                    <Link to={user ? "/dashboard" : "/"} className="mr-6 flex items-center space-x-2">
-                        <span className="hidden font-serif font-bold sm:inline-block">
+                    <Link to={user ? "/dashboard" : "/"} className="mr-2 sm:mr-6 flex items-center space-x-2">
+                        <span className="font-serif font-bold text-sm sm:text-base">
                             ElderFives
                         </span>
                     </Link>
-                    <nav className="flex items-center gap-4 text-sm font-medium">
+                    <nav className="hidden sm:flex items-center gap-4 text-sm font-medium">
                         <Link
                             to="/about"
                             className="transition-colors hover:text-foreground/80 text-foreground/60"
@@ -59,9 +59,9 @@ export function Header() {
                         )}
                     </nav>
                 </div>
-                <div className="flex flex-1 items-center justify-end space-x-2">
+                <div className="flex flex-1 items-center justify-end space-x-1 sm:space-x-2">
                     {user && (
-                        <nav className="flex items-center gap-2">
+                        <nav className="flex items-center gap-1 sm:gap-2">
                             <CreateConversationDialog user={user} />
                             <JoinConversationDialog user={user} />
                         </nav>

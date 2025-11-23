@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { ConversationList } from "@/components/dashboard/ConversationList";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -31,7 +32,10 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background p-4 flex flex-col items-center justify-start pt-12">
       <div className="w-full max-w-4xl space-y-8">
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-2 relative">
+          <div className="absolute top-0 right-0 md:hidden">
+            <ModeToggle />
+          </div>
           <h1 className="text-4xl font-serif text-foreground tracking-tight">Your Conversations</h1>
         </div>
 
