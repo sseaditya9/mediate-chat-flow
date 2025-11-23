@@ -42,7 +42,7 @@ const HowTo = () => {
                         <div className="space-y-2">
                             <h2 className="text-xl font-semibold text-foreground">4. Watch the Win-O-Meter Dance</h2>
                             <p>
-                                With every AI response, the score shifts as the Elders figure out who's making sense — and who's just making noise.
+                                With every AI response, the score shifts as the Elders figure out who's making sense and who's just making noise.
                             </p>
                         </div>
 
