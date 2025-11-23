@@ -32,6 +32,19 @@ export function CreateConversationDialog({ user }: CreateConversationDialogProps
 
         try {
             setCreating(true);
+
+            // Rate Limit: Max 50 conversations per user
+            const { count } = await supabase
+                .from('conversation_participants')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id);
+
+            if (count !== null && count >= 50) {
+                toast.error("Conversation limit reached. Maximum 50 conversations allowed.");
+                setCreating(false);
+                return;
+            }
+
             const code = generateInviteCode();
 
             const { data: conversation, error: convError } = await supabase

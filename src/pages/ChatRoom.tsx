@@ -360,6 +360,18 @@ const ChatRoom = () => {
       return;
     }
 
+    // Rate Limit: Max 1000 characters per message
+    if (newMessage.length > 1000) {
+      toast.error("Message too long. Maximum 1000 characters allowed.");
+      return;
+    }
+
+    // Rate Limit: Max 50 messages per chat
+    if (messages.length >= 50) {
+      toast.error("Message limit reached. Maximum 50 messages allowed per chat.");
+      return;
+    }
+
     // Encrypt if key is available
     let contentToSend = newMessage.trim();
     if (encryptionKey) {
