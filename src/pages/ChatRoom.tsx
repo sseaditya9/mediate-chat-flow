@@ -295,6 +295,7 @@ const ChatRoom = () => {
         () => {
           console.log('[Subscription] Participant change detected! Refreshing...');
           fetchParticipantsRef.current?.();
+          toast.info('A new person has joined the conversation!');
         }
       )
       .on(
@@ -574,7 +575,7 @@ const ChatRoom = () => {
             placeholder="Type your message..."
             className="flex-1 bg-input border-border focus:border-primary h-11"
           />
-          <Button type="submit" disabled={!newMessage.trim()} size="icon" className="bg-primary hover:bg-primary/90 h-11 w-11 rounded-xl">
+          <Button type="submit" disabled={!newMessage.trim() || isAIProcessing} size="icon" className="bg-primary hover:bg-primary/90 h-11 w-11 rounded-xl">
             {isAIProcessing ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (

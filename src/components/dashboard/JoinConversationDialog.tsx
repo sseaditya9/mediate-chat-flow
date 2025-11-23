@@ -45,6 +45,23 @@ export function JoinConversationDialog({ user }: JoinConversationDialogProps) {
                 return;
             }
 
+            // Check participant count
+            const { count, error: countError } = await supabase
+                .from('conversation_participants')
+                .select('*', { count: 'exact', head: true })
+                .eq('conversation_id', conversation.id);
+
+            if (countError) {
+                console.error('Error checking participant count:', countError);
+                toast.error('Failed to check conversation status');
+                return;
+            }
+
+            if (count !== null && count >= 2) {
+                toast.error('This conversation is full (max 2 participants)');
+                return;
+            }
+
             const { error: participantError } = await supabase
                 .from('conversation_participants')
                 .insert({
