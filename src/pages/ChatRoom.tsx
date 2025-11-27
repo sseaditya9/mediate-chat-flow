@@ -58,6 +58,7 @@ const ChatRoom = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [friendIdToAdd, setFriendIdToAdd] = useState<string | null>(null);
+  const [isFriend, setIsFriend] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -242,6 +243,7 @@ const ChatRoom = () => {
   const checkFriendStatus = async () => {
     if (!user || participants.length !== 2) {
       setShowAddFriend(false);
+      setIsFriend(false);
       return;
     }
 
@@ -260,8 +262,10 @@ const ChatRoom = () => {
 
     if (!data && !error) {
       setShowAddFriend(true);
+      setIsFriend(false);
     } else {
       setShowAddFriend(false);
+      setIsFriend(!error && !!data); // Only set true if we got data and no error
     }
   };
 
@@ -280,6 +284,7 @@ const ChatRoom = () => {
 
       toast.success("Friend added!");
       setShowAddFriend(false);
+      setIsFriend(true);
     } catch (error: any) {
       console.error('Error adding friend:', error);
       toast.error("Failed to add friend");
@@ -558,6 +563,7 @@ const ChatRoom = () => {
         onRefresh={handleManualRefresh}
         onAddFriend={handleAddFriend}
         showAddFriend={showAddFriend}
+        isFriend={isFriend}
       />
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-4xl mx-auto space-y-6 pb-4">

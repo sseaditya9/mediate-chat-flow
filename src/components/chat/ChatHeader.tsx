@@ -31,9 +31,10 @@ interface ChatHeaderProps {
     onRefresh?: () => void;
     onAddFriend?: () => void;
     showAddFriend?: boolean;
+    isFriend?: boolean;
 }
 
-const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, inviteCode, isConnected, onRefresh, onAddFriend, showAddFriend }: ChatHeaderProps) => {
+const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, inviteCode, isConnected, onRefresh, onAddFriend, showAddFriend, isFriend }: ChatHeaderProps) => {
     const getInitials = (name: string) => {
         return name
             .split(" ")
@@ -144,6 +145,11 @@ const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, invit
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <Users className="w-3 h-3" />
                             <span>{participants.length} participants</span>
+                            {isFriend && participants.length === 2 && (
+                                <span className="ml-2 px-2 py-0.5 bg-primary/10 text-primary rounded-full text-[10px] font-medium">
+                                    Friend
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -161,6 +167,18 @@ const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, invit
                     >
                         <RefreshCw className="w-4 h-4" />
                     </Button>
+
+                    {showAddFriend && onAddFriend && (
+                        <Button
+                            onClick={onAddFriend}
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:bg-muted text-muted-foreground"
+                            title="Add Friend"
+                        >
+                            <UserPlus className="w-4 h-4 text-primary" />
+                        </Button>
+                    )}
 
                     <div className="flex -space-x-2 overflow-hidden mr-2">
                         {participants.slice(0, 4).map((p) => (

@@ -58,7 +58,7 @@ export const FriendsList = ({ userId }: { userId: string }) => {
             setFriends(formattedFriends);
         } catch (error: any) {
             console.error('Error fetching friends:', error);
-            toast.error('Failed to load friends');
+            // Don't show error toast, just show empty list if something fails
         } finally {
             setLoading(false);
         }
@@ -121,8 +121,9 @@ export const FriendsList = ({ userId }: { userId: string }) => {
             </CardHeader>
             <CardContent>
                 {friends.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                        You haven't added any friends yet.
+                    <div className="text-center py-12 text-muted-foreground space-y-2">
+                        <p>You haven't added any friends yet.</p>
+                        <p className="text-sm">Chat with someone and click the "Add Friend" button to add them here.</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
