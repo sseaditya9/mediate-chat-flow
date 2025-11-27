@@ -36,12 +36,12 @@ export const FriendsList = ({ userId }: { userId: string }) => {
 
     const fetchFriendsAndRequests = async () => {
         try {
-            // Fetch accepted friends where I am the user_id
-            const { data: acceptedFriends, error: friendsError } = await supabase
+            // Fetch accepted friends where I'm EITHER user_id OR friend_id
+            const { data: myFriends, error: friendsError } = await supabase
                 .from('friends' as any)
-                .select('id, friend_id')
-                .eq('user_id', userId)
-                .eq('status', 'accepted');
+                .select('id, user_id, friend_id')
+                .eq('status', 'accepted')
+                .or(`user_id.eq.${userId},friend_id.eq.${userId}`);
 
             if (friendsError) throw friendsError;
 
@@ -54,19 +54,24 @@ export const FriendsList = ({ userId }: { userId: string }) => {
 
             if (requestsError) throw requestsError;
 
+            // Extract friend IDs - get the OTHER person's ID
+            const friendIds = (myFriends || []).map((f: any) =>
+                f.user_id === userId ? f.friend_id : f.user_id
+            );
+
             // Fetch profiles for accepted friends
-            if (acceptedFriends && acceptedFriends.length > 0) {
-                const friendIds = acceptedFriends.map((f: any) => f.friend_id);
+            if (friendIds.length > 0) {
                 const { data: profiles } = await supabase
                     .from('profiles')
                     .select('id, full_name, display_name, avatar_url')
                     .in('id', friendIds);
 
-                const formattedFriends = acceptedFriends.map((item: any) => {
-                    const profile = profiles?.find(p => p.id === item.friend_id);
+                const formattedFriends = (myFriends || []).map((item: any) => {
+                    const friendUserId = item.user_id === userId ? item.friend_id : item.user_id;
+                    const profile = profiles?.find(p => p.id === friendUserId);
                     return {
                         id: item.id,
-                        friend_user_id: item.friend_id,
+                        friend_user_id: friendUserId,
                         full_name: profile?.full_name,
                         display_name: profile?.display_name,
                         avatar_url: profile?.avatar_url,
@@ -191,17 +196,28 @@ export const FriendsList = ({ userId }: { userId: string }) => {
         }
     };
 
-    const handleUnfriend = async (friendshipId: string, friendName: string) => {
+    const handleUnfriend = async (friendshipId: string, friendUserId: string, friendName: string) => {
         if (!confirm(`Remove ${friendName} from your friends?`)) return;
 
         try {
-            // Delete the friendship record
-            const { error } = await supabase
+            // Delete both friendship records (the relationship is stored in both directions)
+            const { error: error1 } = await supabase
                 .from('friends' as any)
                 .delete()
                 .eq('id', friendshipId);
 
-            if (error) throw error;
+            if (error1) throw error1;
+
+            // Also delete the reciprocal record
+            const { error: error2 } = await supabase
+                .from('friends' as any)
+                .delete()
+                .or(`and(user_id.eq.${friendUserId},friend_id.eq.${userId}),and(user_id.eq.${userId},friend_id.eq.${friendUserId})`);
+
+            // Don't throw on error2 - it's okay if the reciprocal doesn't exist
+            if (error2) {
+                console.warn('Reciprocal friendship record not found or already deleted:', error2);
+            }
 
             toast.success('Friend removed');
             fetchFriendsAndRequests();
@@ -321,7 +337,7 @@ export const FriendsList = ({ userId }: { userId: string }) => {
                                         <Button
                                             size="sm"
                                             variant="ghost"
-                                            onClick={() => handleUnfriend(friend.id, friend.display_name || friend.full_name || 'this person')}
+                                            onClick={() => handleUnfriend(friend.id, friend.friend_user_id, friend.display_name || friend.full_name || 'this person')}
                                             className="text-muted-foreground hover:text-destructive"
                                         >
                                             <Trash2 className="w-4 h-4" />

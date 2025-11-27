@@ -252,35 +252,33 @@ const ChatRoom = () => {
 
     setFriendIdToAdd(otherParticipant.user_id);
 
-    // Check if already friends (accepted status)
-    const { data, error } = await supabase
+    // Check if already friends (accepted status) - check BOTH directions
+    const { data: friendData, error: friendError } = await supabase
       .from('friends' as any)
       .select('id')
-      .eq('user_id', user.id)
-      .eq('friend_id', otherParticipant.user_id)
       .eq('status', 'accepted')
+      .or(`and(user_id.eq.${user.id},friend_id.eq.${otherParticipant.user_id}),and(user_id.eq.${otherParticipant.user_id},friend_id.eq.${user.id})`)
       .maybeSingle();
 
-    // Also check if there's a pending request
+    // Check if there's a pending request in EITHER direction
     const { data: pendingRequest } = await supabase
       .from('friends' as any)
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('friend_id', otherParticipant.user_id)
+      .select('id, user_id, friend_id')
       .eq('status', 'pending')
+      .or(`and(user_id.eq.${user.id},friend_id.eq.${otherParticipant.user_id}),and(user_id.eq.${otherParticipant.user_id},friend_id.eq.${user.id})`)
       .maybeSingle();
 
-    if (!data && !error && !pendingRequest) {
-      // Not friends and no pending request - show Add Friend button
-      setShowAddFriend(true);
-      setIsFriend(false);
-    } else if (data) {
+    if (friendData) {
       // Already friends (accepted)
       setShowAddFriend(false);
       setIsFriend(true);
-    } else {
-      // Pending request exists or other state
+    } else if (pendingRequest) {
+      // There's a pending request - don't show Add Friend button
       setShowAddFriend(false);
+      setIsFriend(false);
+    } else {
+      // Not friends and no pending request - show Add Friend button
+      setShowAddFriend(true);
       setIsFriend(false);
     }
   };
