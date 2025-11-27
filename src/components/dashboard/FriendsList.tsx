@@ -100,7 +100,7 @@ export const FriendsList = ({ userId }: { userId: string }) => {
 
     if (loading) {
         return (
-            <Card className="border-border/30 dark:border-ai-mediator/10 shadow-sm mt-6">
+            <Card className="border-border/30 dark:border-ai-mediator/10 shadow-sm">
                 <CardContent className="py-8">
                     <div className="text-center text-muted-foreground">Loading friends...</div>
                 </CardContent>
@@ -109,7 +109,7 @@ export const FriendsList = ({ userId }: { userId: string }) => {
     }
 
     return (
-        <Card className="border-border/30 dark:border-ai-mediator/10 shadow-sm mt-6">
+        <Card className="border-border/30 dark:border-ai-mediator/10 shadow-sm">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-foreground">
                     <Users className="w-5 h-5 text-foreground" />

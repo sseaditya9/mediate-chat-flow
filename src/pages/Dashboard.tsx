@@ -5,6 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import { ConversationList } from "@/components/dashboard/ConversationList";
 import { FriendsList } from "@/components/dashboard/FriendsList";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -42,10 +43,18 @@ const Dashboard = () => {
 
         <div className="bg-card/50 dark:bg-ai-mediator/10 backdrop-blur-sm rounded-2xl p-6 border border-border/50 shadow-sm transition-colors duration-500">
           {user && (
-            <>
-              <ConversationList userId={user.id} />
-              <FriendsList userId={user.id} />
-            </>
+            <Tabs defaultValue="conversations" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="conversations">Conversations</TabsTrigger>
+                <TabsTrigger value="friends">Friends</TabsTrigger>
+              </TabsList>
+              <TabsContent value="conversations">
+                <ConversationList userId={user.id} />
+              </TabsContent>
+              <TabsContent value="friends">
+                <FriendsList userId={user.id} />
+              </TabsContent>
+            </Tabs>
           )}
         </div>
       </div>
