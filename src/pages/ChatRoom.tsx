@@ -252,20 +252,36 @@ const ChatRoom = () => {
 
     setFriendIdToAdd(otherParticipant.user_id);
 
-    // Check if already friends
+    // Check if already friends (accepted status)
     const { data, error } = await supabase
       .from('friends' as any)
       .select('id')
       .eq('user_id', user.id)
       .eq('friend_id', otherParticipant.user_id)
+      .eq('status', 'accepted')
       .maybeSingle();
 
-    if (!data && !error) {
+    // Also check if there's a pending request
+    const { data: pendingRequest } = await supabase
+      .from('friends' as any)
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('friend_id', otherParticipant.user_id)
+      .eq('status', 'pending')
+      .maybeSingle();
+
+    if (!data && !error && !pendingRequest) {
+      // Not friends and no pending request - show Add Friend button
       setShowAddFriend(true);
       setIsFriend(false);
-    } else {
+    } else if (data) {
+      // Already friends (accepted)
       setShowAddFriend(false);
-      setIsFriend(!error && !!data); // Only set true if we got data and no error
+      setIsFriend(true);
+    } else {
+      // Pending request exists or other state
+      setShowAddFriend(false);
+      setIsFriend(false);
     }
   };
 
@@ -277,17 +293,18 @@ const ChatRoom = () => {
         .from('friends' as any)
         .insert({
           user_id: user.id,
-          friend_id: friendIdToAdd
+          friend_id: friendIdToAdd,
+          status: 'pending'
         });
 
       if (error) throw error;
 
-      toast.success("Friend added!");
+      toast.success("Friend request sent!");
       setShowAddFriend(false);
-      setIsFriend(true);
+      setIsFriend(false);
     } catch (error: any) {
-      console.error('Error adding friend:', error);
-      toast.error("Failed to add friend");
+      console.error('Error sending friend request:', error);
+      toast.error("Failed to send friend request");
     }
   };
 
