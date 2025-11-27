@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { MessageSquarePlus, UserPlus, Users, Check, X } from "lucide-react";
+import { MessageSquarePlus, UserPlus, Users, Check, X, Trash2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 interface FriendRequest {
@@ -153,16 +153,22 @@ export const FriendsList = ({ userId }: { userId: string }) => {
 
     const handleStartChat = async (friendId: string) => {
         try {
+            // Create a unique invite code
+            const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
             const { data: conversation, error: convError } = await supabase
                 .from('conversations')
                 .insert({
                     title: 'Direct Chat',
-                    invite_code: Math.random().toString(36).substring(2, 8).toUpperCase()
+                    invite_code: inviteCode
                 })
                 .select()
                 .single();
 
-            if (convError) throw convError;
+            if (convError) {
+                console.error('Conversation creation error:', convError);
+                throw convError;
+            }
 
             const { error: partError } = await supabase
                 .from('conversation_participants')
@@ -171,14 +177,37 @@ export const FriendsList = ({ userId }: { userId: string }) => {
                     { conversation_id: conversation.id, user_id: friendId }
                 ]);
 
-            if (partError) throw partError;
+            if (partError) {
+                console.error('Participant addition error:', partError);
+                throw partError;
+            }
 
             navigate(`/chat/${conversation.id}`);
             toast.success('Chat started!');
 
         } catch (error: any) {
             console.error('Error starting chat:', error);
-            toast.error('Failed to start chat');
+            toast.error(error.message || 'Failed to start chat');
+        }
+    };
+
+    const handleUnfriend = async (friendshipId: string, friendName: string) => {
+        if (!confirm(`Remove ${friendName} from your friends?`)) return;
+
+        try {
+            // Delete the friendship record
+            const { error } = await supabase
+                .from('friends' as any)
+                .delete()
+                .eq('id', friendshipId);
+
+            if (error) throw error;
+
+            toast.success('Friend removed');
+            fetchFriendsAndRequests();
+        } catch (error: any) {
+            console.error('Error removing friend:', error);
+            toast.error('Failed to remove friend');
         }
     };
 
@@ -280,14 +309,24 @@ export const FriendsList = ({ userId }: { userId: string }) => {
                                             </div>
                                         </div>
                                     </div>
-                                    <Button
-                                        size="sm"
-                                        variant="secondary"
-                                        onClick={() => handleStartChat(friend.friend_user_id)}
-                                    >
-                                        <MessageSquarePlus className="w-4 h-4 mr-2" />
-                                        Chat
-                                    </Button>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            size="sm"
+                                            variant="secondary"
+                                            onClick={() => handleStartChat(friend.friend_user_id)}
+                                        >
+                                            <MessageSquarePlus className="w-4 h-4 mr-2" />
+                                            Chat
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={() => handleUnfriend(friend.id, friend.display_name || friend.full_name || 'this person')}
+                                            className="text-muted-foreground hover:text-destructive"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
