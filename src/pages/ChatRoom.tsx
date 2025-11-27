@@ -56,6 +56,8 @@ const ChatRoom = () => {
   const aiTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [isConnected, setIsConnected] = useState(false);
+  const [showAddFriend, setShowAddFriend] = useState(false);
+  const [friendIdToAdd, setFriendIdToAdd] = useState<string | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -233,8 +235,62 @@ const ChatRoom = () => {
   const handleManualRefresh = () => {
     fetchMessages();
     fetchParticipants();
+    checkFriendStatus();
     toast.success("Refreshed chat");
   };
+
+  const checkFriendStatus = async () => {
+    if (!user || participants.length !== 2) {
+      setShowAddFriend(false);
+      return;
+    }
+
+    const otherParticipant = participants.find(p => p.user_id !== user.id);
+    if (!otherParticipant) return;
+
+    setFriendIdToAdd(otherParticipant.user_id);
+
+    // Check if already friends
+    const { data, error } = await supabase
+      .from('friends' as any)
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('friend_id', otherParticipant.user_id)
+      .maybeSingle();
+
+    if (!data && !error) {
+      setShowAddFriend(true);
+    } else {
+      setShowAddFriend(false);
+    }
+  };
+
+  const handleAddFriend = async () => {
+    if (!user || !friendIdToAdd) return;
+
+    try {
+      const { error } = await supabase
+        .from('friends' as any)
+        .insert({
+          user_id: user.id,
+          friend_id: friendIdToAdd
+        });
+
+      if (error) throw error;
+
+      toast.success("Friend added!");
+      setShowAddFriend(false);
+    } catch (error: any) {
+      console.error('Error adding friend:', error);
+      toast.error("Failed to add friend");
+    }
+  };
+
+  useEffect(() => {
+    if (participants.length > 0) {
+      checkFriendStatus();
+    }
+  }, [participants, user]);
 
   useEffect(() => {
     if (!conversationId || !user) return;
@@ -366,9 +422,9 @@ const ChatRoom = () => {
       return;
     }
 
-    // Rate Limit: Max 50 messages per chat
-    if (messages.length >= 50) {
-      toast.error("Message limit reached. Maximum 50 messages allowed per chat.");
+    // Rate Limit: Max 100 messages per chat
+    if (messages.length >= 100) {
+      toast.error("Message limit reached. Maximum 100 messages allowed per chat.");
       return;
     }
 
@@ -500,6 +556,8 @@ const ChatRoom = () => {
         inviteCode={inviteCode}
         isConnected={isConnected}
         onRefresh={handleManualRefresh}
+        onAddFriend={handleAddFriend}
+        showAddFriend={showAddFriend}
       />
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-4xl mx-auto space-y-6 pb-4">

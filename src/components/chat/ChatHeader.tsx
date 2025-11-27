@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, RefreshCw } from "lucide-react";
+import { ArrowLeft, Users, RefreshCw, UserPlus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from '@supabase/supabase-js';
 
@@ -29,9 +29,11 @@ interface ChatHeaderProps {
     inviteCode?: string;
     isConnected?: boolean;
     onRefresh?: () => void;
+    onAddFriend?: () => void;
+    showAddFriend?: boolean;
 }
 
-const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, inviteCode, isConnected, onRefresh }: ChatHeaderProps) => {
+const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, inviteCode, isConnected, onRefresh, onAddFriend, showAddFriend }: ChatHeaderProps) => {
     const getInitials = (name: string) => {
         return name
             .split(" ")

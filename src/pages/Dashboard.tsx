@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { ConversationList } from "@/components/dashboard/ConversationList";
+import { FriendsList } from "@/components/dashboard/FriendsList";
 import { ModeToggle } from "@/components/mode-toggle";
 
 const Dashboard = () => {
@@ -40,7 +41,12 @@ const Dashboard = () => {
         </div>
 
         <div className="bg-card/50 dark:bg-ai-mediator/10 backdrop-blur-sm rounded-2xl p-6 border border-border/50 shadow-sm transition-colors duration-500">
-          {user && <ConversationList userId={user.id} />}
+          {user && (
+            <>
+              <ConversationList userId={user.id} />
+              <FriendsList userId={user.id} />
+            </>
+          )}
         </div>
       </div>
     </div>
