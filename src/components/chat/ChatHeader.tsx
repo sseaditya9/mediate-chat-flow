@@ -32,9 +32,11 @@ interface ChatHeaderProps {
     onAddFriend?: () => void;
     showAddFriend?: boolean;
     isFriend?: boolean;
+    showAcceptFriend?: boolean;
+    onAcceptFriend?: () => void;
 }
 
-const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, inviteCode, isConnected, onRefresh, onAddFriend, showAddFriend, isFriend }: ChatHeaderProps) => {
+const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, inviteCode, isConnected, onRefresh, onAddFriend, showAddFriend, isFriend, showAcceptFriend, onAcceptFriend }: ChatHeaderProps) => {
     const getInitials = (name: string) => {
         return name
             .split(" ")
@@ -177,6 +179,19 @@ const ChatHeader = ({ title, participants, onBack, winOMeter, currentUser, invit
                             title="Add Friend"
                         >
                             <UserPlus className="w-4 h-4 text-primary" />
+                        </Button>
+                    )}
+
+                    {showAcceptFriend && onAcceptFriend && (
+                        <Button
+                            onClick={onAcceptFriend}
+                            variant="default"
+                            size="sm"
+                            className="h-8 text-xs"
+                            title="Accept Friend Request"
+                        >
+                            <UserPlus className="w-3 h-3 mr-1" />
+                            Accept
                         </Button>
                     )}
 

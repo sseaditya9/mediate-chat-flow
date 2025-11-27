@@ -59,6 +59,8 @@ const ChatRoom = () => {
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [friendIdToAdd, setFriendIdToAdd] = useState<string | null>(null);
   const [isFriend, setIsFriend] = useState(false);
+  const [showAcceptFriend, setShowAcceptFriend] = useState(false);
+  const [incomingRequestId, setIncomingRequestId] = useState<string | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -243,6 +245,7 @@ const ChatRoom = () => {
   const checkFriendStatus = async () => {
     if (!user || participants.length !== 2) {
       setShowAddFriend(false);
+      setShowAcceptFriend(false);
       setIsFriend(false);
       return;
     }
@@ -266,19 +269,31 @@ const ChatRoom = () => {
       .select('id, user_id, friend_id')
       .eq('status', 'pending')
       .or(`and(user_id.eq.${user.id},friend_id.eq.${otherParticipant.user_id}),and(user_id.eq.${otherParticipant.user_id},friend_id.eq.${user.id})`)
-      .maybeSingle();
+      .maybeSingle() as { data: { id: string; user_id: string; friend_id: string } | null };
 
     if (friendData) {
       // Already friends (accepted)
       setShowAddFriend(false);
+      setShowAcceptFriend(false);
       setIsFriend(true);
     } else if (pendingRequest) {
-      // There's a pending request - don't show Add Friend button
-      setShowAddFriend(false);
-      setIsFriend(false);
+      // There's a pending request
+      if (pendingRequest.friend_id === user.id) {
+        // I am the recipient - show Accept button
+        setShowAcceptFriend(true);
+        setIncomingRequestId(pendingRequest.id);
+        setShowAddFriend(false);
+        setIsFriend(false);
+      } else {
+        // I sent the request - don't show any button
+        setShowAcceptFriend(false);
+        setShowAddFriend(false);
+        setIsFriend(false);
+      }
     } else {
       // Not friends and no pending request - show Add Friend button
       setShowAddFriend(true);
+      setShowAcceptFriend(false);
       setIsFriend(false);
     }
   };
@@ -303,6 +318,27 @@ const ChatRoom = () => {
     } catch (error: any) {
       console.error('Error sending friend request:', error);
       toast.error("Failed to send friend request");
+    }
+  };
+
+  const handleAcceptFriendRequest = async () => {
+    if (!incomingRequestId) return;
+
+    try {
+      const { error } = await supabase
+        .from('friends' as any)
+        .update({ status: 'accepted' })
+        .eq('id', incomingRequestId);
+
+      if (error) throw error;
+
+      toast.success("Friend request accepted!");
+      setShowAcceptFriend(false);
+      setIsFriend(true);
+      setIncomingRequestId(null);
+    } catch (error: any) {
+      console.error('Error accepting friend request:', error);
+      toast.error("Failed to accept request");
     }
   };
 
@@ -579,6 +615,8 @@ const ChatRoom = () => {
         onAddFriend={handleAddFriend}
         showAddFriend={showAddFriend}
         isFriend={isFriend}
+        showAcceptFriend={showAcceptFriend}
+        onAcceptFriend={handleAcceptFriendRequest}
       />
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-4xl mx-auto space-y-6 pb-4">

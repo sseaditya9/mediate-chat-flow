@@ -114,22 +114,14 @@ export const FriendsList = ({ userId }: { userId: string }) => {
 
     const handleAcceptRequest = async (requestId: string, requesterId: string) => {
         try {
-            // Update status to accepted
+            // Just update status to accepted - no need to create reciprocal row
+            // since we query both directions now
             const { error } = await supabase
                 .from('friends' as any)
                 .update({ status: 'accepted' })
                 .eq('id', requestId);
 
             if (error) throw error;
-
-            // Create reciprocal friendship
-            await supabase
-                .from('friends' as any)
-                .insert({
-                    user_id: userId,
-                    friend_id: requesterId,
-                    status: 'accepted'
-                });
 
             toast.success("Friend request accepted!");
             fetchFriendsAndRequests();
