@@ -15,27 +15,20 @@ const About = () => {
                 </div>
 
                 <div className="space-y-6 text-foreground">
-                    <h1 className="text-5xl font-serif tracking-tight">About The Elders Five</h1>
+                    <h1 className="text-5xl font-serif tracking-tight">About EldersFive</h1>
 
                     <div className="prose dark:prose-invert max-w-none space-y-4 text-lg leading-relaxed text-muted-foreground">
                         <p>
-                            <span className="font-semibold text-foreground">The EldersFive</span> is based on the legendary tradition of five wise elders who used to settle conflicts, big and small whenever two people disagreed, felt stuck, and needed an impartial authority to step in and help them see things clearly. They didn’t need degrees or long speeches, just authority, attitude, and a sharp sense of humor. So we stole that vibe.
+                            <span className="font-semibold text-foreground">EldersFive is based on the ancient tradition</span> of having a set of five wise and learned elders to solve a debate about ideas, grievances, or an impasse between two parties.
                         </p>
                         <p>
-                            Two people drop their dispute.
-                            The Elders listens,  ask the right questions, and deliver a verdict that actually makes sense.
-                            Fast. Fair. A little too honest.
+                            In EldersFive, we give the authority of the five elders to the LLMs, and we place our trust in them to judge our ideas and debates with an objective impartiality, no fluffy soft talk, just pure honesty and a strong personality. It will call out the wrong idea, and reward the right one with a Win-O-Meter.
                         </p>
                         <p>
-                            No therapy talk.
-                            No corporate jargon.
-                            Just modern problems solved with ancient confidence.
+                            The EldersFive use the Win-O-Meter to convey who is the winning party of the clash, and by how much, starting from a 50-50.
                         </p>
-                        <p>
-                            We even added the Win-O-Meter™, because let’s be honest: half the fun of solving a conflict is knowing who actually had the point and who was just loud. It’s petty, it’s honest, and it keeps everyone humble.
-                        </p>
-                        <p>
-                            Because your tiny arguments deserve legendary resolutions.
+                        <p className="text-sm italic border-l-4 border-primary/50 pl-4 py-2">
+                            <strong>Privacy:</strong> Note that the conversation will be sent to OpenAI and then encrypted in the database. Hence nobody except you and your opponent will be able to view the conversation.
                         </p>
                     </div>
                 </div>

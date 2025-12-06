@@ -49,35 +49,77 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center space-y-4">
-          <div className="flex justify-center">
-            <div className="w-20 h-20 rounded-2xl bg-primary/20 flex items-center justify-center border-2 border-primary/30">
-              <MessageSquare className="w-10 h-10 text-primary" />
+    <div className="min-h-screen flex flex-col bg-background">
+      {/* Hero Section */}
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-5xl grid md:grid-cols-2 gap-12 items-center">
+
+          {/* Left: Concept & Branding */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center border-2 border-primary/30">
+                <MessageSquare className="w-8 h-8 text-primary" />
+              </div>
+              <h1 className="text-6xl tracking-tight text-foreground font-serif">
+                EldersFive
+              </h1>
+            </div>
+
+            <div className="space-y-4 text-muted-foreground">
+              <p className="text-xl leading-relaxed">
+                Based on the ancient tradition of <span className="font-semibold text-foreground">five wise and learned elders</span> who settle debates, grievances, and impasses between two parties.
+              </p>
+
+              <p className="text-lg leading-relaxed">
+                We give the authority of the five elders to the LLMs. No fluffy soft talk—just <span className="font-semibold text-foreground">pure honesty and a strong personality</span>. The EldersFive will call out the wrong idea and reward the right one.
+              </p>
+
+              <div className="flex items-start gap-3 bg-primary/10 border border-primary/20 rounded-lg p-4">
+                <div className="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-primary"></div>
+                <div>
+                  <p className="font-semibold text-foreground">Win-O-Meter</p>
+                  <p className="text-sm">Tracks who's winning the clash, starting from 50-50. Watch the score shift as the debate unfolds.</p>
+                </div>
+              </div>
+
+              <p className="text-sm italic border-l-4 border-muted pl-4 py-2">
+                Your conversation is sent to OpenAI for AI mediation, then encrypted in the database. Nobody except you and your opponent can view it.
+              </p>
             </div>
           </div>
-          <div>
-            <h1 className="text-5xl tracking-tight text-foreground font-serif">
-              ElderFives
-            </h1>
-            <p className="mt-3 text-lg text-muted-foreground">
-              Summon the EldersFive
-            </p>
-          </div>
-        </div>
 
-        <div className="mt-10">
-          <Button
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            className="w-full h-12 text-base font-medium bg-primary hover:bg-primary/90"
-            size="lg"
-          >
-            {loading ? 'Signing in...' : 'Sign in with Google'}
-          </Button>
+          {/* Right: Sign In */}
+          <div className="flex items-center justify-center">
+            <div className="w-full max-w-sm space-y-6 bg-card border border-border rounded-2xl p-8 shadow-lg">
+              <div className="text-center space-y-2">
+                <h2 className="text-2xl font-semibold text-foreground">Enter the Arena</h2>
+                <p className="text-sm text-muted-foreground">
+                  Settle your debates with ancient wisdom, modern AI
+                </p>
+              </div>
+
+              <Button
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+                className="w-full h-12 text-base font-medium bg-primary hover:bg-primary/90"
+                size="lg"
+              >
+                {loading ? 'Signing in...' : 'Sign in with Google'}
+              </Button>
+
+              <p className="text-xs text-center text-muted-foreground">
+                By signing in, you agree to let the EldersFive judge your debates with brutal honesty
+              </p>
+            </div>
+          </div>
+
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-border py-6 px-6 text-center text-sm text-muted-foreground">
+        <p>Because your arguments deserve legendary resolutions</p>
+      </footer>
     </div>
   );
 };
