@@ -34,7 +34,8 @@ STRICT OUTPUT: Always output EXACTLY one JSON object (nothing else) with the fol
     "right": { "name": "<Name2>", "score": <int 0-100> } 
   },
   "actions": [ { "who": "<Name>", "action": "<short instruction>" } ],
-  "clarify": "<optional short question if type=='ask'>"
+  "clarify": "<optional short question if type=='ask'>",
+  "conversation_title": "<short 3-5 word title summarizing the topic/debate>"
 }
 
 Rules:
@@ -52,7 +53,8 @@ Rules:
    - 60/40 or 70/30: One side more reasonable
    - 80/20 or 90/10: One side clearly wrong/unreasonable
 7) In 'actions', give specific instructions to improve arguments (for debates) or resolve issues (for conflicts).
-8) Do not output any prose outside the JSON object. If you cannot answer, still return a JSON with type='ask' and a clarifying question.
+8) ALWAYS include 'conversation_title': a short 3-5 word title capturing the main topic/debate. Examples: "UBI Economic Impact", "AI Job Displacement Debate", "Charger Borrowing Dispute", "Climate Policy Arguments"
+9) Do not output any prose outside the JSON object. If you cannot answer, still return a JSON with type='ask' and a clarifying question.
 
 Example (debate about ideas):
 Input:
@@ -66,7 +68,8 @@ Assistant output:
  "actions":[
    {"who":"Alex","action":"Provide actual evidence or studies supporting UBI effectiveness"},
    {"who":"Jordan","action":"Quantify your claim with data on work incentive effects"}
- ]
+ ],
+ "conversation_title":"UBI Economic Impact Debate"
 }
 `;
 
@@ -80,7 +83,8 @@ Assistant (ack):
  "text":"Sara makes a bold prediction. Mike counters with a weak generalization. Sara, define 'most.' Mike, 'irreplaceable' is a strong claim—back it up.",
  "win_meter":{ "left": { "name": "Sara", "score": 55 }, "right": { "name": "Mike", "score": 45 } },
  "actions":[],
- "clarify":"What percentage is 'most' and which job sectors specifically?"
+ "clarify":"What percentage is 'most' and which job sectors specifically?",
+ "conversation_title":"AI Job Replacement Debate"
 }
 
 Example 2 (personal conflict):
@@ -92,7 +96,8 @@ Assistant (ask):
  "text":"Priyuu says 'keep using' but Aditya says 'one time.' Someone's lying or memory is failing. Quick detail: how many times has this actually happened?",
  "win_meter":{ "left": { "name": "Priyuu", "score": 60 }, "right": { "name": "Aditya", "score": 40 } },
  "actions":[],
- "clarify":"How many times has this happened?"
+ "clarify":"How many times has this happened?",
+ "conversation_title":"Charger Borrowing Dispute"
 }
 `;
 
@@ -151,9 +156,20 @@ Deno.serve(async (req) => {
 
     const encryptionKey = keyData?.secret_key;
 
+    // Fetch current conversation title to check if it needs updating
+    const { data: convData } = await supabase
+      .from('conversations')
+      .select('title')
+      .eq('id', conversationId)
+      .single();
+
+    const currentTitle = convData?.title || '';
+    const needsTitleUpdate = ['Direct Chat', 'New Conversation', 'Conversation', ''].includes(currentTitle);
+
     // Decrypt user message if key exists
     const decryptedUserMessage = encryptionKey ? decryptMessage(userMessage, encryptionKey) : userMessage;
     console.log(`[mediate] Decrypted user message: "${decryptedUserMessage}"`);
+    console.log(`[mediate] Current title: "${currentTitle}", needs update: ${needsTitleUpdate}`);
 
     // Fetch last messages (most recent first), limited
     const { data: messagesRaw, error: fetchError } = await supabase
@@ -339,13 +355,15 @@ Ensure 'win_meter' uses the names "${name1}" and "${name2}" for left/right keys.
 
     if (insertError) throw insertError;
 
-    // Update conversation title if AI provided one
-    if (finalResponseObj?.conversation_title) {
-      console.log(`[mediate] Updating title to: ${finalResponseObj.conversation_title}`);
+    // Update conversation title if AI provided one AND the current title is generic
+    if (finalResponseObj?.conversation_title && needsTitleUpdate) {
+      console.log(`[mediate] Updating title from "${currentTitle}" to: ${finalResponseObj.conversation_title}`);
       await supabase
         .from('conversations')
         .update({ title: finalResponseObj.conversation_title })
         .eq('id', conversationId);
+    } else if (finalResponseObj?.conversation_title) {
+      console.log(`[mediate] Keeping existing title "${currentTitle}", AI suggested: ${finalResponseObj.conversation_title}`);
     }
 
     return new Response(JSON.stringify({ success: true, aiResponse: finalResponseObj }), {
