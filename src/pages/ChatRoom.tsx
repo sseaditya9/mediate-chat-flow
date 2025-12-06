@@ -242,6 +242,28 @@ const ChatRoom = () => {
     toast.success("Refreshed chat");
   };
 
+  // Refresh when user returns to the tab (smart fallback)
+  useEffect(() => {
+    if (!conversationId || !user) return;
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // User returned to tab - refresh to catch any missed updates
+        console.log('[Visibility] User returned to tab, refreshing...');
+        fetchMessages();
+        fetchParticipants();
+        checkFriendStatus();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [conversationId, user]);
+
+
   const checkFriendStatus = async () => {
     if (!user || participants.length !== 2) {
       setShowAddFriend(false);
