@@ -83,7 +83,7 @@ const Auth = () => {
               </div>
 
               <p className="text-sm italic border-l-4 border-muted pl-4 py-2">
-                Your conversation is sent to OpenAI for AI mediation, then encrypted in the database. Nobody except you and your opponent can view it.
+                Your conversations are AES encrypted.
               </p>
             </div>
           </div>

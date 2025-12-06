@@ -28,7 +28,7 @@ const About = () => {
                             The EldersFive use the Win-O-Meter to convey who is the winning party of the clash, and by how much, starting from a 50-50.
                         </p>
                         <p className="text-sm italic border-l-4 border-primary/50 pl-4 py-2">
-                            <strong>Privacy:</strong> Note that the conversation will be sent to OpenAI and then encrypted in the database. Hence nobody except you and your opponent will be able to view the conversation.
+                            <strong>Privacy:</strong> Note that your conversations are AES encrypted.
                         </p>
                     </div>
                 </div>
