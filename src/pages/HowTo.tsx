@@ -28,7 +28,6 @@ const HowTo = () => {
                                 <li>Start arguing. The EldersFive score every exchange.</li>
                                 <li>Win-O-Meter tracks who's ahead in real-time.</li>
                             </ol>
-                            <p className="text-sm italic">Good for: One-off debates, settling arguments quickly, debating with strangers.</p>
                         </div>
 
                         <div className="space-y-3">
@@ -36,10 +35,8 @@ const HowTo = () => {
                             <ol className="space-y-2 list-decimal list-inside">
                                 <li>During any conversation, click "Add Friend" on your opponent.</li>
                                 <li>They accept your request from their dashboard.</li>
-                                <li>Now you can start direct chats with them anytime—no codes needed.</li>
-                                <li>Build your roster of worthy opponents.</li>
+                                <li>Now you can start direct chats with them anytime, no codes needed.</li>
                             </ol>
-                            <p className="text-sm italic">Good for: Regular debates, friendly rivals, building a debate circle.</p>
                         </div>
 
                         <div className="pt-4 border-t border-border/50 space-y-3">
@@ -47,7 +44,7 @@ const HowTo = () => {
                             <ul className="space-y-2 list-disc list-inside">
                                 <li><strong>Debates about ideas:</strong> They score logic, evidence, and reasoning. They'll push both sides to argue better, not end the debate.</li>
                                 <li><strong>Personal conflicts:</strong> They'll cut through the BS, assign fault, and suggest resolution.</li>
-                                <li><strong>Win-O-Meter:</strong> Starts at 50-50. Shifts based on who's making stronger arguments. It's cumulative—whole debate matters, not just the last punch.</li>
+                                <li><strong>Win-O-Meter:</strong> Starts at 50-50. Shifts based on who's making stronger arguments. It's cumulative, whole debate matters, not just the last punch.</li>
                             </ul>
                         </div>
 
