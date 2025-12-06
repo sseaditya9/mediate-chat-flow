@@ -1,73 +1,72 @@
-# Welcome to your Lovable project
+# ElderFives
 
-## Project info
+A real-time debate and mediation platform with AI-powered moderation.
 
-**URL**: https://lovable.dev/projects/6e5854e3-cf49-476c-b793-988def05b201
+## About
 
-## How can I edit this code?
+ElderFives is a platform for meaningful conversations and structured debates, featuring:
 
-There are several ways of editing your application.
+- Real-time two-person debates with end-to-end encryption
+- AI mediator ("The EldersFive") that evaluates arguments and provides feedback
+- Win-O-Meter scoring system to track debate performance
+- Friend system for connecting with other users
+- Secure authentication via Supabase
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/6e5854e3-cf49-476c-b793-988def05b201) and start prompting.
+- **Frontend**: React, TypeScript, Vite
+- **UI Components**: shadcn-ui, Tailwind CSS
+- **Backend**: Supabase (PostgreSQL + Realtime + Edge Functions)
+- **AI**: Custom LLM integration via Supabase Edge Functions
 
-Changes made via Lovable will be committed automatically to this repo.
+## Getting Started
 
-**Use your preferred IDE**
+### Prerequisites
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Node.js 18+ and npm (or use [nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
+- Supabase account and project
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Installation
 
-Follow these steps:
-
+1. Clone the repository:
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
+cd mediate-chat-flow
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. Install dependencies:
+```sh
+npm install
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3. Set up environment variables:
+   - Copy `.env.example` to `.env`
+   - Add your Supabase project credentials
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+4. Start the development server:
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Available Scripts
 
-**Use GitHub Codespaces**
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Deployment
 
-## What technologies are used for this project?
+This project can be deployed to:
+- **Vercel** (recommended)
+- **Cloudflare Pages**
+- **Netlify**
+- Any static hosting service
 
-This project is built with:
+Build the project with `npm run build` and deploy the `dist` folder.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## License
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/6e5854e3-cf49-476c-b793-988def05b201) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+MIT
