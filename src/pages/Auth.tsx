@@ -71,7 +71,7 @@ const Auth = () => {
               </p>
 
               <p className="text-lg leading-relaxed">
-                We give the authority of the five elders to the LLMs. No fluffy soft talk—just <span className="font-semibold text-foreground">pure honesty and a strong personality</span>. The EldersFive will call out the wrong idea and reward the right one.
+                We give the authority of the five elders to the LLMs. No fluffy soft talk, just <span className="font-semibold text-foreground">pure honesty and a strong personality</span>. The EldersFive will call out the wrong idea and reward the right one.
               </p>
 
               <div className="flex items-start gap-3 bg-primary/10 border border-primary/20 rounded-lg p-4">
