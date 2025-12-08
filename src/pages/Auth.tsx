@@ -52,7 +52,7 @@ const Auth = () => {
     <div className="min-h-screen flex flex-col bg-background">
       {/* Hero Section */}
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-5xl grid md:grid-cols-2 gap-12 items-center">
+        <div className="w-full max-w-5xl flex flex-col-reverse md:grid md:grid-cols-2 gap-12 items-center">
 
           {/* Left: Concept & Branding */}
           <div className="space-y-6">
