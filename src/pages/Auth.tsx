@@ -115,11 +115,6 @@ const Auth = () => {
 
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="border-t border-border py-6 px-6 text-center text-sm text-muted-foreground">
-        <p>Because your arguments deserve legendary resolutions</p>
-      </footer>
     </div>
   );
 };
