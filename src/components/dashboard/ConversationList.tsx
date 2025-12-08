@@ -16,11 +16,15 @@ interface Conversation {
   other_participant?: string;
 }
 
-
+interface ConversationListProps {
+  userId: string;
+  onCreateClick?: () => void;
+  onJoinClick?: () => void;
+}
 
 const ITEMS_PER_PAGE = 10;
 
-export const ConversationList = ({ userId }: { userId: string }) => {
+export const ConversationList = ({ userId, onCreateClick, onJoinClick }: ConversationListProps) => {
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -193,7 +197,21 @@ export const ConversationList = ({ userId }: { userId: string }) => {
       <CardContent>
         {conversations.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            No sessions yet. Create or join one to get started!
+            No sessions yet.{' '}
+            <button
+              onClick={onCreateClick}
+              className="text-primary hover:underline font-medium cursor-pointer"
+            >
+              Create
+            </button>
+            {' '}or{' '}
+            <button
+              onClick={onJoinClick}
+              className="text-primary hover:underline font-medium cursor-pointer"
+            >
+              join
+            </button>
+            {' '}one to get started!
           </div>
         ) : (
           <>

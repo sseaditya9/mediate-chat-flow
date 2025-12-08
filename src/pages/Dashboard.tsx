@@ -4,12 +4,17 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { ConversationList } from "@/components/dashboard/ConversationList";
 import { FriendsList } from "@/components/dashboard/FriendsList";
+import { CreateConversationDialog } from "@/components/dashboard/CreateConversationDialog";
+import { JoinConversationDialog } from "@/components/dashboard/JoinConversationDialog";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog } from "@/components/ui/dialog";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [joinDialogOpen, setJoinDialogOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -31,6 +36,14 @@ const Dashboard = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const handleCreateClick = () => {
+    setCreateDialogOpen(true);
+  };
+
+  const handleJoinClick = () => {
+    setJoinDialogOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-background p-4 flex flex-col items-center justify-start pt-12">
       <div className="w-full max-w-4xl space-y-8">
@@ -49,13 +62,27 @@ const Dashboard = () => {
                 <TabsTrigger value="friends">Friends</TabsTrigger>
               </TabsList>
               <TabsContent value="conversations">
-                <ConversationList userId={user.id} />
+                <ConversationList
+                  userId={user.id}
+                  onCreateClick={handleCreateClick}
+                  onJoinClick={handleJoinClick}
+                />
               </TabsContent>
               <TabsContent value="friends">
                 <FriendsList userId={user.id} />
               </TabsContent>
             </Tabs>
           )}
+        </div>
+
+        {/* Hidden dialog triggers - controlled programmatically */}
+        <div className="hidden">
+          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+            <CreateConversationDialog user={user} />
+          </Dialog>
+          <Dialog open={joinDialogOpen} onOpenChange={setJoinDialogOpen}>
+            <JoinConversationDialog user={user} />
+          </Dialog>
         </div>
       </div>
     </div>
