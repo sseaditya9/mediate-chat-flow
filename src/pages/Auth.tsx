@@ -67,11 +67,11 @@ const Auth = () => {
 
             <div className="space-y-4 text-muted-foreground">
               <p className="text-xl leading-relaxed">
-                Based on the ancient tradition of <span className="font-semibold text-foreground">five wise and learned elders</span> who settle debates, grievances, and impasses between two parties.
+                Based on the ancient tradition of having a set of five wise and learned elders to solve a debate about ideas, grievances, or an impasse between two parties.
               </p>
 
               <p className="text-lg leading-relaxed">
-                We give the authority of the five elders to the LLMs. No fluffy soft talk, just <span className="font-semibold text-foreground">pure honesty and a strong personality</span>. The EldersFive will call out the wrong idea and reward the right one.
+                We give the authority of the five elders to the LLMs. No fluffy soft talk, just <span className="font-semibold text-foreground">pure honesty and a strong personality</span>. The EldersFive will judge the wrong idea and reward the right one.
               </p>
 
               <div className="flex items-start gap-3 bg-primary/10 border border-primary/20 rounded-lg p-4">
@@ -93,9 +93,6 @@ const Auth = () => {
             <div className="w-full max-w-sm space-y-6 bg-card border border-border rounded-2xl p-8 shadow-lg">
               <div className="text-center space-y-2">
                 <h2 className="text-2xl font-semibold text-foreground">Enter the Arena</h2>
-                <p className="text-sm text-muted-foreground">
-                  Settle your debates with ancient wisdom, modern AI
-                </p>
               </div>
 
               <Button
