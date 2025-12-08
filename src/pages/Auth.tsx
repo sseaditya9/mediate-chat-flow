@@ -93,7 +93,7 @@ const Auth = () => {
 
               {/* Text content (shows on both mobile and desktop) */}
               <div className="space-y-6 text-muted-foreground">
-                <p className="text-xl leading-relaxed">
+                <p className="text-lg leading-relaxed">
                   Based on the ancient tradition of having a set of five wise and learned elders to solve a debate about ideas, grievances, or an impasse between two parties.
                 </p>
 
