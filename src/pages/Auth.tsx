@@ -56,18 +56,16 @@ const Auth = () => {
 
           {/* Mobile: Title at top */}
           <div className="flex md:hidden items-center gap-5 justify-center mb-10">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center border border-primary/20 shadow-lg">
-              <img
-                src="/darkfav.ico"
-                alt="EldersFive"
-                className="w-12 h-12 dark:hidden"
-              />
-              <img
-                src="/lightfav.ico"
-                alt="EldersFive"
-                className="w-12 h-12 hidden dark:block"
-              />
-            </div>
+            <img
+              src="/darkfav.ico"
+              alt="EldersFive"
+              className="w-16 h-16 dark:hidden"
+            />
+            <img
+              src="/lightfav.ico"
+              alt="EldersFive"
+              className="w-16 h-16 hidden dark:block"
+            />
             <h1 className="text-5xl tracking-tight text-foreground font-serif">
               EldersFive
             </h1>
@@ -78,18 +76,16 @@ const Auth = () => {
             <div className="space-y-8 order-2 md:order-1">
               {/* Desktop: Title */}
               <div className="hidden md:flex items-center gap-6">
-                <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center border border-primary/20 shadow-xl">
-                  <img
-                    src="/darkfav.ico"
-                    alt="EldersFive"
-                    className="w-16 h-16 dark:hidden"
-                  />
-                  <img
-                    src="/lightfav.ico"
-                    alt="EldersFive"
-                    className="w-16 h-16 hidden dark:block"
-                  />
-                </div>
+                <img
+                  src="/darkfav.ico"
+                  alt="EldersFive"
+                  className="w-20 h-20 dark:hidden"
+                />
+                <img
+                  src="/lightfav.ico"
+                  alt="EldersFive"
+                  className="w-20 h-20 hidden dark:block"
+                />
                 <h1 className="text-7xl tracking-tight text-foreground font-serif">
                   EldersFive
                 </h1>
@@ -97,19 +93,19 @@ const Auth = () => {
 
               {/* Text content (shows on both mobile and desktop) */}
               <div className="space-y-6 text-muted-foreground">
-                <p className="text-xl md:text-2xl leading-relaxed">
+                <p className="text-xl leading-relaxed">
                   Based on the ancient tradition of having a set of five wise and learned elders to solve a debate about ideas, grievances, or an impasse between two parties.
                 </p>
 
-                <p className="text-lg md:text-xl leading-relaxed">
+                <p className="text-lg leading-relaxed">
                   We give the authority of the five elders to the LLMs. No fluffy soft talk, just <span className="font-semibold text-foreground">pure honesty and a strong personality</span>. The EldersFive will judge the wrong idea and reward the right one.
                 </p>
 
                 <div className="flex items-start gap-4 bg-primary/10 border border-primary/20 rounded-xl p-5 shadow-sm">
                   <div className="flex-shrink-0 w-2.5 h-2.5 mt-2 rounded-full bg-primary shadow-sm"></div>
                   <div>
-                    <p className="font-semibold text-foreground text-lg">Win-O-Meter</p>
-                    <p className="text-base">Tracks who's winning the clash, starting from 50-50. Watch the score shift as the debate unfolds.</p>
+                    <p className="font-semibold text-foreground">Win-O-Meter</p>
+                    <p className="text-sm">Tracks who's winning the clash, starting from 50-50. Watch the score shift as the debate unfolds.</p>
                   </div>
                 </div>
 
@@ -121,9 +117,9 @@ const Auth = () => {
 
             {/* Right: Sign In */}
             <div className="flex items-center justify-center order-1 md:order-2 w-full">
-              <div className="w-full max-w-md space-y-8 bg-card/50 backdrop-blur-sm border border-border rounded-3xl p-10 shadow-2xl">
-                <div className="text-center space-y-3">
-                  <h2 className="text-3xl font-semibold text-foreground">Enter the Arena</h2>
+              <div className="w-full max-w-md space-y-6 bg-card/50 backdrop-blur-sm border border-border rounded-3xl p-10 shadow-2xl">
+                <div className="text-center space-y-2">
+                  <h2 className="text-2xl font-semibold text-foreground">Enter the Arena</h2>
                 </div>
 
                 <Button
