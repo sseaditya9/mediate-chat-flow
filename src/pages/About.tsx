@@ -30,6 +30,15 @@ const About = () => {
                         <p className="text-sm italic border-l-4 border-primary/50 pl-4 py-2">
                             <strong>Privacy:</strong> Note that your conversations are AES encrypted.
                         </p>
+                        <p className="text-sm mt-6 pt-4 border-t border-border">
+                            <strong>Contact us:</strong>{" "}
+                            <a
+                                href="mailto:aditya9@alumni.iitm.ac.in"
+                                className="text-primary hover:underline transition-colors"
+                            >
+                                aditya9@alumni.iitm.ac.in
+                            </a>
+                        </p>
                     </div>
                 </div>
             </div>
