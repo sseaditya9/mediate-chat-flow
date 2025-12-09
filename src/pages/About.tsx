@@ -31,7 +31,7 @@ const About = () => {
                             <strong>Privacy:</strong> Note that your conversations are AES encrypted.
                         </p>
                         <p className="text-sm mt-6 pt-4 border-t border-border">
-                            <strong>Contact us:</strong>{" "}
+                            <strong>Contact:</strong>{" "}
                             <a
                                 href="mailto:aditya9@alumni.iitm.ac.in"
                                 className="text-primary hover:underline transition-colors"
