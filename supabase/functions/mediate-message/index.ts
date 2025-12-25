@@ -202,7 +202,7 @@ Deno.serve(async (req) => {
       .single();
 
     const currentTitle = convData?.title || '';
-    const needsTitleUpdate = ['Direct Chat', 'New Conversation', 'Conversation', ''].includes(currentTitle);
+    const needsTitleUpdate = ['Direct Chat', 'New Conversation', 'New ElderFives', 'Conversation', ''].includes(currentTitle);
 
     // Decrypt user message if key exists
     const decryptedUserMessage = encryptionKey ? decryptMessage(userMessage, encryptionKey) : userMessage;

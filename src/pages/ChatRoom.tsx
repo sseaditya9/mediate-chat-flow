@@ -624,7 +624,7 @@ const ChatRoom = () => {
   };
 
   return (
-    <div className="h-screen md:h-screen flex flex-col bg-background overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-background">
       <ChatHeader
         title={conversationTitle}
         participants={participants}
