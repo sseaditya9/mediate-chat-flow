@@ -22,10 +22,10 @@ const AppContent = () => {
 
   return (
     <>
-      <GlobalMessageListener />
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <GlobalMessageListener />
         <Header />
         <GlobalControls />
         <Routes>
