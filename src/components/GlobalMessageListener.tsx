@@ -3,29 +3,59 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useLocation } from 'react-router-dom';
 
-// Simple "ting" sound (glass ping) - known working base64
-const NOTIFICATION_SOUND = "data:audio/mp3;base64,SUQzBAAAAAABAFRYVFgAAAASAAADbWFqb3JfYnJhbmQAZGlzaFRYVFgAAAEQAAADbWlub3JfdmVyc2lvbgAwV1hUVwAAAA8AAANjb21wYXRpYmxlX2JyYW5kcwAzZ3A2UXVpY2tUaW1lVGl0bGUAAAD+//uSZEAAAAT0bTj0gAAAzo2nHpAAAE1WJKS0IAAAATVYkpKQAAACUAAAAMAAAABAAAAA//uSZEAABAAABAAAAAAABAAAAAAABAAABAAAAAAABAAAAAAABAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0UAAAD/RQAAAP9FAAAA/0H/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAH/4kGQAAAAAAA==";
-
 export const GlobalMessageListener = () => {
-    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const audioContextRef = useRef<AudioContext | null>(null);
     const location = useLocation();
 
-    // Initialize audio and unlock on first interaction
-    useEffect(() => {
-        audioRef.current = new Audio(NOTIFICATION_SOUND);
-        audioRef.current.volume = 0.6;
+    const playBeep = () => {
+        try {
+            const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+            if (!AudioContext) return;
 
+            if (!audioContextRef.current) {
+                audioContextRef.current = new AudioContext();
+            }
+
+            const ctx = audioContextRef.current;
+
+            // Resume if suspended (browser autoplay policy)
+            if (ctx.state === 'suspended') {
+                ctx.resume();
+            }
+
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+
+            // Nice pleasing "ting" (Sine wave, high pitch, short decay)
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, ctx.currentTime); // 800Hz
+            oscillator.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.5); // Drop pitch
+
+            gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+
+            oscillator.start();
+            oscillator.stop(ctx.currentTime + 0.5);
+
+            console.log('[Listener] Beep played');
+        } catch (e) {
+            console.error('[Listener] Error playing beep:', e);
+        }
+    };
+
+    useEffect(() => {
+        // Try to unlock audio context on first user interaction
         const unlockAudio = () => {
-            if (audioRef.current) {
-                // Try to play and pause immediately to unlock
-                audioRef.current.play().then(() => {
-                    audioRef.current?.pause();
-                    audioRef.current!.currentTime = 0;
-                    console.log('[Audio] Unlocked successfully');
-                    document.removeEventListener('click', unlockAudio);
-                    document.removeEventListener('keydown', unlockAudio);
-                }).catch(e => {
-                    console.log('[Audio] Unlock failed (waiting for interaction):', e);
+            const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+            if (AudioContext && !audioContextRef.current) {
+                audioContextRef.current = new AudioContext();
+            }
+            if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+                audioContextRef.current.resume().then(() => {
+                    console.log('[Audio] Context resumed/unlocked');
                 });
             }
         };
@@ -36,7 +66,7 @@ export const GlobalMessageListener = () => {
         return () => {
             document.removeEventListener('click', unlockAudio);
             document.removeEventListener('keydown', unlockAudio);
-        };
+        }
     }, []);
 
     useEffect(() => {
@@ -62,17 +92,11 @@ export const GlobalMessageListener = () => {
                     }
 
                     const currentPath = location.pathname;
-                    // Extract UUID from path correctly
                     const pathParts = currentPath.split('/');
                     const currentChatId = pathParts.includes('chat') ? pathParts[pathParts.indexOf('chat') + 1] : null;
 
-                    console.log(`[Listener] Playing sound. On chat: ${currentChatId}, msg chat: ${newMessage.conversation_id}`);
-
-                    // Play sound
-                    if (audioRef.current) {
-                        audioRef.current.currentTime = 0;
-                        audioRef.current.play().catch(e => console.error('[Listener] Error playing sound:', e));
-                    }
+                    console.log(`[Listener] Attempting sound...`);
+                    playBeep();
 
                     // Show toast if NOT on the specific chat page
                     if (currentChatId !== newMessage.conversation_id) {
