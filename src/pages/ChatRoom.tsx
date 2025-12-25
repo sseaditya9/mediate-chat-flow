@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Send, Loader2, Lock } from "lucide-react";
 import AIMediatorMessage from "@/components/chat/AIMediatorMessage";
@@ -54,6 +53,7 @@ const ChatRoom = () => {
   const channelRef = useRef<RealtimeChannel | null>(null);
   const fetchParticipantsRef = useRef<() => Promise<void>>();
   const aiTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [isConnected, setIsConnected] = useState(false);
   const [showAddFriend, setShowAddFriend] = useState(false);
@@ -528,6 +528,11 @@ const ChatRoom = () => {
     setMessages(prev => [...prev, optimisticMessage]);
     setNewMessage("");
 
+    // Reset textarea height
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+
     try {
       const { data, error: insertError } = await supabase
         .from('messages')
@@ -624,7 +629,7 @@ const ChatRoom = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       <ChatHeader
         title={conversationTitle}
         participants={participants}
@@ -715,12 +720,25 @@ const ChatRoom = () => {
       </div>
 
       <div className="border-t border-border bg-background p-4 shrink-0">
-        <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex items-center gap-2">
-          <Input
+        <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex items-end gap-2">
+          <textarea
+            ref={textareaRef}
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={(e) => {
+              setNewMessage(e.target.value);
+              // Auto-grow textarea
+              e.target.style.height = 'auto';
+              e.target.style.height = e.target.scrollHeight + 'px';
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage(e);
+              }
+            }}
             placeholder="Type your message..."
-            className="flex-1 bg-input border-border focus:border-primary h-11"
+            className="flex-1 bg-input border border-border focus:border-primary rounded-md px-3 py-2 text-sm resize-none min-h-[44px] max-h-[200px] overflow-y-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            rows={1}
           />
           <Button type="submit" disabled={!newMessage.trim() || isAIProcessing} size="icon" className="bg-primary hover:bg-primary/90 h-11 w-11 rounded-xl">
             {isAIProcessing ? (
