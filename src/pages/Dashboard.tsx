@@ -75,7 +75,7 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Hidden dialog triggers - controlled programmatically */}
+        {/* Hidden dialog triggers controlled programmatically */}
         <div className="hidden">
           <CreateConversationDialog user={user} open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
           <JoinConversationDialog user={user} open={joinDialogOpen} onOpenChange={setJoinDialogOpen} />
