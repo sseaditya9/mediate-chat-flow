@@ -19,8 +19,10 @@ interface JoinConversationDialogProps {
     user: User | null;
 }
 
-export function JoinConversationDialog({ user }: JoinConversationDialogProps) {
-    const [open, setOpen] = useState(false);
+export function JoinConversationDialog({ user, open: controlledOpen, onOpenChange: setControlledOpen }: JoinConversationDialogProps & { open?: boolean; onOpenChange?: (open: boolean) => void }) {
+    const [internalOpen, setInternalOpen] = useState(false);
+    const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+    const setOpen = setControlledOpen || setInternalOpen;
     const [joining, setJoining] = useState(false);
     const [inviteCode, setInviteCode] = useState("");
     const navigate = useNavigate();

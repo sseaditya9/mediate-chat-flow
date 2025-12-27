@@ -18,8 +18,10 @@ interface CreateConversationDialogProps {
     user: User | null;
 }
 
-export function CreateConversationDialog({ user }: CreateConversationDialogProps) {
-    const [open, setOpen] = useState(false);
+export function CreateConversationDialog({ user, open: controlledOpen, onOpenChange: setControlledOpen }: CreateConversationDialogProps & { open?: boolean; onOpenChange?: (open: boolean) => void }) {
+    const [internalOpen, setInternalOpen] = useState(false);
+    const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+    const setOpen = setControlledOpen || setInternalOpen;
     const [creating, setCreating] = useState(false);
     const navigate = useNavigate();
 
