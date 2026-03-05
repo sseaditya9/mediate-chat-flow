@@ -14,6 +14,8 @@ import { useFavicon } from "@/hooks/useFavicon";
 import Dashboard from "./pages/Dashboard";
 import ChatRoom from "./pages/ChatRoom";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -33,6 +35,8 @@ const AppContent = () => {
           <Route path="/account" element={<Account />} />
           <Route path="/about" element={<About />} />
           <Route path="/how-to" element={<HowTo />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

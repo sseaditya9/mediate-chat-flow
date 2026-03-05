@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -132,7 +132,10 @@ const Auth = () => {
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground leading-relaxed px-2">
-                  By signing in, you agree to let the EldersFive judge your debates with brutal honesty
+                  By signing in, you agree to our{" "}
+                  <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link>
+                  {" "}and{" "}
+                  <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
                 </p>
               </div>
             </div>
@@ -140,6 +143,17 @@ const Auth = () => {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="py-6 px-6 text-center">
+        <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+          <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+          <span className="text-border">·</span>
+          <Link to="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link>
+          <span className="text-border">·</span>
+          <Link to="/about" className="hover:text-foreground transition-colors">About</Link>
+        </div>
+      </footer>
     </div>
   );
 };
